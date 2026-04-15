@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= wallet ? 'Editar' : 'Nueva' %> Billetera — Sigue Wallet</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+  <nav class="bg-gray-800 border-b border-gray-700 px-6 py-4">
+    <div class="flex items-center justify-between">
+      <a href="/dashboard" class="text-xl font-bold text-emerald-400">Sigue Wallet</a>
+      <div class="flex items-center gap-4">
+        <a href="/dashboard" class="hover:text-emerald-400 transition">Dashboard</a>
+        <a href="/wallets" class="hover:text-emerald-400 transition">Billeteras</a>
+        <a href="/logout" class="text-red-400 hover:text-red-300 text-sm transition">Salir</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="px-6 py-8 max-w-xl">
+    <div class="flex items-center justify-between mb-8">
+      <h1 class="text-2xl font-bold"><%= wallet ? 'Editar' : 'Nueva' %> Billetera</h1>
+      <a href="/wallets" class="text-gray-400 hover:text-white text-sm">← Volver</a>
+    </div>
+
+    <% if (error) { %>
+      <div class="bg-red-900/50 border border-red-700 text-red-300 px-4 py-3 rounded mb-6">
+        <%= error %>
+      </div>
+    <% } %>
+
+    <form method="POST" action="<%= wallet ? '/wallets/' + wallet.id : '/wallets' %>"
+      class="bg-gray-800 rounded-xl p-8 border border-gray-700">
+      <div class="mb-6">
+        <label class="block text-gray-300 mb-2" for="alias">Alias</label>
+        <input type="text" name="alias" id="alias" required
+          value="<%= wallet ? wallet.alias : '' %>"
+          placeholder="ej: MetaMask Principal"
+          class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-400">
+      </div>
+
+      <div class="mb-6">
+        <label class="block text-gray-300 mb-2" for="address">Dirección</label>
+        <input type="text" name="address" id="address" required
+          value="<%= wallet ? wallet.address : '' %>"
+          placeholder="0x..."
+          class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-400 font-mono text-sm">
+      </div>
+
+      <div class="mb-6">
+        <label class="block text-gray-300 mb-2" for="chain">Cadena</label>
+        <select name="chain" id="chain" required
+          class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-400">
+          <option value="">Seleccionar cadena</option>
+          <% ['ethereum','bsc','polygon','avalanche','optimism','fantom','arbitrum','sonic'].forEach(c => { %>
+            <option value="<%= c %>" <%= wallet && wallet.chain === c ? 'selected' : '' %>><%= c %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="flex gap-4">
+        <button type="submit"
+          class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition">
+          <%= wallet ? 'Guardar Cambios' : 'Crear Billetera' %>
+        </button>
+        <a href="/wallets" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded-lg text-center transition">
+          Cancelar
+        </a>
+      </div>
+    </form>
+  </main>
+</body>
+</html>
