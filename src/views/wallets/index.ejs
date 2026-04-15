@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Billeteras — Sigue Wallet</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+  <nav class="bg-gray-800 border-b border-gray-700 px-6 py-4">
+    <div class="flex items-center justify-between">
+      <a href="/dashboard" class="text-xl font-bold text-emerald-400">Sigue Wallet</a>
+      <div class="flex items-center gap-4">
+        <a href="/dashboard" class="hover:text-emerald-400 transition">Dashboard</a>
+        <a href="/wallets" class="hover:text-emerald-400 transition">Billeteras</a>
+        <a href="/logout" class="text-red-400 hover:text-red-300 text-sm transition">Salir</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="px-6 py-8">
+    <div class="flex items-center justify-between mb-8">
+      <h1 class="text-2xl font-bold">Billeteras</h1>
+      <a href="/wallets/new" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm transition">
+        + Nueva Billetera
+      </a>
+    </div>
+
+    <% if (wallets.length === 0) { %>
+      <div class="bg-gray-800 rounded-xl p-12 border border-gray-700 text-center">
+        <p class="text-gray-400 mb-4">No hay billeteras cargadas</p>
+        <a href="/wallets/new" class="inline-block bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-lg transition">
+          Agregar primera billetera
+        </a>
+      </div>
+    <% } else { %>
+      <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
+        <table class="w-full">
+          <thead class="bg-gray-700 text-gray-300 text-sm">
+            <tr>
+              <th class="px-6 py-3 text-left">Alias</th>
+              <th class="px-6 py-3 text-left">Dirección</th>
+              <th class="px-6 py-3 text-left">Cadena</th>
+              <th class="px-6 py-3 text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-700">
+            <% wallets.forEach(w => { %>
+              <tr class="hover:bg-gray-750">
+                <td class="px-6 py-4 font-medium"><%= w.alias %></td>
+                <td class="px-6 py-4 text-gray-400 text-sm font-mono"><%= w.address %></td>
+                <td class="px-6 py-4">
+                  <span class="text-xs bg-emerald-900 text-emerald-300 px-2 py-1 rounded uppercase"><%= w.chain %></span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <a href="/wallets/<%= w.id %>/edit" class="text-blue-400 hover:text-blue-300 text-sm mr-4">Editar</a>
+                  <form method="POST" action="/wallets/<%= w.id %>/delete" class="inline">
+                    <button type="submit" class="text-red-400 hover:text-red-300 text-sm"
+                      onclick="return confirm('¿Eliminar esta billetera?')">Eliminar</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </main>
+</body>
+</html>
