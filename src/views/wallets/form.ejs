@@ -4,54 +4,62 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= wallet ? 'Editar' : 'Nueva' %> Billetera — Sigue Wallet</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+  </style>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen">
-  <nav class="bg-gray-800 border-b border-gray-700 px-6 py-4">
-    <div class="flex items-center justify-between">
-      <a href="/dashboard" class="text-xl font-bold text-emerald-400">Sigue Wallet</a>
-      <div class="flex items-center gap-4">
-        <a href="/dashboard" class="hover:text-emerald-400 transition">Dashboard</a>
-        <a href="/wallets" class="hover:text-emerald-400 transition">Billeteras</a>
-        <a href="/logout" class="text-red-400 hover:text-red-300 text-sm transition">Salir</a>
-      </div>
+<body style="background: #ffffff; color: #101114; min-height: 100vh; margin: 0;">
+  <nav style="background: #ffffff; border-bottom: 1px solid #dedee5; padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between;">
+    <a href="/dashboard" style="font-size: 20px; font-weight: 700; color: #7132f5; text-decoration: none;">Sigue Wallet</a>
+    <div style="display: flex; align-items: center; gap: 32px;">
+      <a href="/dashboard" style="color: #9497a9; text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s;" onmouseover="this.style.color='#101114'" onmouseout="this.style.color='#9497a9'">Dashboard</a>
+      <a href="/wallets" style="color: #101114; text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s;" onmouseover="this.style.color='#7132f5'" onmouseout="this.style.color='#101114'">Billeteras</a>
+      <a href="/logout" style="color: #9497a9; text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#9497a9'">Salir</a>
     </div>
   </nav>
 
-  <main class="px-6 py-8 max-w-xl">
-    <div class="flex items-center justify-between mb-8">
-      <h1 class="text-2xl font-bold"><%= wallet ? 'Editar' : 'Nueva' %> Billetera</h1>
-      <a href="/wallets" class="text-gray-400 hover:text-white text-sm">← Volver</a>
+  <main style="padding: 48px 24px; max-width: 480px; margin: 0 auto;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px;">
+      <h1 style="font-size: 24px; font-weight: 700; color: #101114; margin: 0;"><%= wallet ? 'Editar Billetera' : 'Nueva Billetera' %></h1>
+      <a href="/wallets" style="color: #9497a9; text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s;" onmouseover="this.style.color='#7132f5'" onmouseout="this.style.color='#9497a9'">← Volver</a>
     </div>
 
     <% if (error) { %>
-      <div class="bg-red-900/50 border border-red-700 text-red-300 px-4 py-3 rounded mb-6">
+      <div style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 12px 16px; border-radius: 12px; margin-bottom: 24px; font-size: 14px;">
         <%= error %>
       </div>
     <% } %>
 
-    <form method="POST" action="<%= wallet ? '/wallets/' + wallet.id : '/wallets' %>"
-      class="bg-gray-800 rounded-xl p-8 border border-gray-700">
-      <div class="mb-6">
-        <label class="block text-gray-300 mb-2" for="alias">Alias</label>
+    <form method="POST" action="<%= wallet ? '/wallets/' + wallet.id : '/wallets' %>" style="background: #ffffff; border: 1px solid #dedee5; border-radius: 16px; padding: 32px; box-shadow: rgba(0,0,0,0.03) 0px 4px 24px;">
+      <div style="margin-bottom: 24px;">
+        <label style="display: block; color: #101114; font-size: 14px; font-weight: 600; margin-bottom: 8px;" for="alias">Alias</label>
         <input type="text" name="alias" id="alias" required
           value="<%= wallet ? wallet.alias : '' %>"
           placeholder="ej: MetaMask Principal"
-          class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-400">
+          style="width: 100%; background: #ffffff; border: 1px solid #dedee5; border-radius: 12px; padding: 12px 16px; font-size: 14px; color: #101114; box-sizing: border-box; outline: none; transition: border-color 0.2s;"
+          onfocus="this.style.borderColor='#7132f5'"
+          onblur="this.style.borderColor='#dedee5'">
       </div>
 
-      <div class="mb-6">
-        <label class="block text-gray-300 mb-2" for="address">Dirección</label>
+      <div style="margin-bottom: 24px;">
+        <label style="display: block; color: #101114; font-size: 14px; font-weight: 600; margin-bottom: 8px;" for="address">Dirección</label>
         <input type="text" name="address" id="address" required
           value="<%= wallet ? wallet.address : '' %>"
           placeholder="0x..."
-          class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-400 font-mono text-sm">
+          style="width: 100%; background: #ffffff; border: 1px solid #dedee5; border-radius: 12px; padding: 12px 16px; font-size: 14px; color: #101114; font-family: monospace; box-sizing: border-box; outline: none; transition: border-color 0.2s;"
+          onfocus="this.style.borderColor='#7132f5'"
+          onblur="this.style.borderColor='#dedee5'">
       </div>
 
-      <div class="mb-6">
-        <label class="block text-gray-300 mb-2" for="chain">Cadena</label>
+      <div style="margin-bottom: 32px;">
+        <label style="display: block; color: #101114; font-size: 14px; font-weight: 600; margin-bottom: 8px;" for="chain">Cadena</label>
         <select name="chain" id="chain" required
-          class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-400">
+          style="width: 100%; background: #ffffff; border: 1px solid #dedee5; border-radius: 12px; padding: 12px 16px; font-size: 14px; color: #101114; box-sizing: border-box; outline: none; transition: border-color 0.2s; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%239497a9%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 20px;"
+          onfocus="this.style.borderColor='#7132f5'"
+          onblur="this.style.borderColor='#dedee5'">
           <option value="">Seleccionar cadena</option>
           <% ['ethereum','bsc','polygon','avalanche','optimism','fantom','arbitrum','sonic'].forEach(c => { %>
             <option value="<%= c %>" <%= wallet && wallet.chain === c ? 'selected' : '' %>><%= c %></option>
@@ -59,12 +67,17 @@
         </select>
       </div>
 
-      <div class="flex gap-4">
+      <div style="display: flex; gap: 12px;">
         <button type="submit"
-          class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition">
+          style="flex: 1; background: #7132f5; color: #ffffff; font-size: 14px; font-weight: 600; padding: 14px 24px; border: none; border-radius: 12px; cursor: pointer; transition: background 0.2s;"
+          onmouseover="this.style.background='#5f25d9'"
+          onmouseout="this.style.background='#7132f5'">
           <%= wallet ? 'Guardar Cambios' : 'Crear Billetera' %>
         </button>
-        <a href="/wallets" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded-lg text-center transition">
+        <a href="/wallets"
+          style="flex: 1; background: #ffffff; color: #101114; font-size: 14px; font-weight: 600; padding: 14px 24px; border: 1px solid #dedee5; border-radius: 12px; text-decoration: none; text-align: center; transition: all 0.2s;"
+          onmouseover="this.style.borderColor='#7132f5'; this.style.color='#7132f5'"
+          onmouseout="this.style.borderColor='#dedee5'; this.style.color='#101114'">
           Cancelar
         </a>
       </div>

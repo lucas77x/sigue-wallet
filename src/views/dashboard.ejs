@@ -5,47 +5,115 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard — Sigue Wallet</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#7132f5',
+            kraken: {
+              purple: '#7132f5',
+              text: '#101114',
+              muted: '#9497a9',
+              surface: '#ffffff',
+              border: '#dedee5',
+              green: '#149e61',
+              'green-dark': '#026b3f',
+              subtle: 'rgba(133,91,251,0.16)',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+          },
+          boxShadow: {
+            card: 'rgba(0,0,0,0.03) 0px 4px 24px',
+          },
+          borderRadius: {
+            btn: '12px',
+            card: '16px',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+    .font-mono { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; }
+  </style>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen">
-  <nav class="bg-gray-800 border-b border-gray-700 px-6 py-4">
-    <div class="flex items-center justify-between">
-      <a href="/dashboard" class="text-xl font-bold text-emerald-400">Sigue Wallet</a>
-      <div class="flex items-center gap-4">
-        <a href="/dashboard" class="hover:text-emerald-400 transition">Dashboard</a>
-        <a href="/wallets" class="hover:text-emerald-400 transition">Billeteras</a>
-        <span class="text-gray-400 text-sm">/ <%= username %></span>
-        <a href="/logout" class="text-red-400 hover:text-red-300 text-sm transition">Salir</a>
+<body class="bg-white text-kraken-text min-h-screen">
+
+  <!-- Navbar -->
+  <nav class="bg-white border-b border-kraken-border px-6 py-4">
+    <div class="flex items-center justify-between max-w-6xl mx-auto">
+      <!-- Logo -->
+      <a href="/dashboard" class="flex items-center gap-2">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="32" height="32" rx="8" fill="#7132f5"/>
+          <path d="M10 14h12M10 18h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="22" cy="18" r="3" stroke="white" stroke-width="2"/>
+        </svg>
+        <span class="text-xl font-bold text-kraken-text">Sigue Wallet</span>
+      </a>
+
+      <!-- Nav Links -->
+      <div class="flex items-center gap-6">
+        <a href="/dashboard" class="text-kraken-text font-medium hover:text-primary transition">Dashboard</a>
+        <a href="/wallets" class="text-kraken-muted hover:text-primary transition">Billeteras</a>
+        <div class="flex items-center gap-4 pl-4 border-l border-kraken-border">
+          <span class="text-kraken-muted text-sm"><%= username %></span>
+          <a href="/logout" class="text-red-500 hover:text-red-600 text-sm font-medium transition">Salir</a>
+        </div>
       </div>
     </div>
   </nav>
 
-  <main class="px-6 py-8">
+  <!-- Main Content -->
+  <main class="px-6 py-8 max-w-6xl mx-auto">
     <div class="flex items-center justify-between mb-8">
-      <h1 class="text-2xl font-bold">Mi Portafolio</h1>
-      <a href="/wallets" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm transition">
+      <h1 class="text-2xl font-bold text-kraken-text">Mi Portafolio</h1>
+      <a href="/wallets" class="bg-primary hover:bg-opacity-90 text-white px-5 py-2.5 rounded-btn text-sm font-medium transition shadow-sm">
         + Gestionar Billeteras
       </a>
     </div>
 
     <% if (wallets.length === 0) { %>
-      <div class="bg-gray-800 rounded-xl p-12 border border-gray-700 text-center">
-        <p class="text-gray-400 mb-4">No tenés billeteras cargadas</p>
-        <a href="/wallets/new" class="inline-block bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-lg transition">
+      <!-- Empty State -->
+      <div class="bg-white rounded-card p-12 border border-kraken-border shadow-card text-center">
+        <div class="w-16 h-16 bg-kraken-subtle rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 12h16M8 16h12M8 20h8" stroke="#7132f5" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h2 class="text-xl font-semibold text-kraken-text mb-2">No tenés billeteras cargadas</h2>
+        <p class="text-kraken-muted mb-6">Agregá tu primera billetera para comenzar a trackear tu portafolio crypto.</p>
+        <a href="/wallets/new" class="inline-block bg-primary hover:bg-opacity-90 text-white px-6 py-3 rounded-btn font-medium transition shadow-sm">
           Agregar tu primera billetera
         </a>
       </div>
     <% } else { %>
+      <!-- Wallet Cards Grid -->
       <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <% wallets.forEach(wallet => { %>
-          <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+          <div class="bg-white rounded-card p-6 border border-kraken-border shadow-card" data-wallet-id="<%= wallet.id %>">
             <div class="flex items-start justify-between mb-4">
-              <div>
-                <h3 class="font-bold text-lg"><%= wallet.alias %></h3>
-                <p class="text-xs text-gray-400"><%= wallet.chain %> · <%= wallet.address.slice(0, 6) %>...<%= wallet.address.slice(-4) %></p>
+              <div class="flex-1 min-w-0">
+                <h3 class="font-bold text-lg text-kraken-text truncate"><%= wallet.alias %></h3>
+                <p class="font-mono text-xs text-kraken-muted mt-1">
+                  <%= wallet.address.slice(0, 6) %>...<%= wallet.address.slice(-4) %>
+                </p>
               </div>
-              <span class="text-xs bg-emerald-900 text-emerald-300 px-2 py-1 rounded uppercase"><%= wallet.chain %></span>
+              <span class="ml-3 shrink-0 text-xs font-medium bg-kraken-subtle text-primary px-2.5 py-1 rounded-full uppercase">
+                <%= wallet.chain %>
+              </span>
             </div>
-            <div id="balances-<%= wallet.id %>" class="text-gray-400 text-sm">
+
+            <!-- Balances Container -->
+            <div id="balances-<%= wallet.id %>" class="text-kraken-muted text-sm min-h-[24px]">
+              <span class="inline-block w-2 h-2 bg-kraken-muted rounded-full animate-pulse mr-2"></span>
               Cargando...
             </div>
           </div>
@@ -53,5 +121,38 @@
       </div>
     <% } %>
   </main>
+
+  <!-- Footer Script for Fetching Balances -->
+  <script>
+    async function fetchBalances(walletId, address, chain) {
+      const container = document.getElementById(`balances-${walletId}`);
+      if (!container) return;
+
+      try {
+        const response = await fetch(`/api/portfolio?address=${address}&chain=${chain}`);
+        const data = await response.json();
+
+        if (data.balances && data.balances.length > 0) {
+          container.innerHTML = data.balances.map(b => `
+            <div class="flex justify-between items-center py-1.5 border-b border-kraken-border last:border-0">
+              <span class="font-medium text-kraken-text">${b.symbol}</span>
+              <span class="text-kraken-text font-medium">${b.balance}</span>
+            </div>
+          `).join('');
+        } else {
+          container.innerHTML = '<span class="text-kraken-muted">Sin balances</span>';
+        }
+      } catch (error) {
+        console.error(`Error fetching balances for ${walletId}:`, error);
+        container.innerHTML = '<span class="text-red-400">Error al cargar</span>';
+      }
+    }
+
+    // Fetch all wallet balances on page load
+    const walletsData = <%= JSON.stringify(wallets) %>;
+    walletsData.forEach(wallet => {
+      fetchBalances(wallet.id, wallet.address, wallet.chain);
+    });
+  </script>
 </body>
 </html>

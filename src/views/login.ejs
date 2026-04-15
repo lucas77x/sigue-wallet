@@ -4,36 +4,101 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login — Sigue Wallet</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            kraken: {
+              purple: '#7132f5',
+              'purple-dark': '#5741d8',
+              'purple-deep': '#5b1ecf',
+              'purple-subtle': 'rgba(133,91,251,0.16)',
+              black: '#101114',
+              gray: '#686b82',
+              'silver': '#9497a9',
+              border: '#dedee5',
+              green: '#149e61',
+              'green-dark': '#026b3f',
+              'green-subtle': 'rgba(20,158,97,0.16)',
+              'neutral-badge': 'rgba(104,107,130,0.12)',
+              'neutral-text': '#484b5e',
+            }
+          },
+          borderRadius: {
+            'btn': '12px',
+          },
+          boxShadow: {
+            'kraken': 'rgba(0,0,0,0.03) 0px 4px 24px',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+  </style>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen flex items-center justify-center">
-  <div class="max-w-md w-full">
-    <h1 class="text-3xl font-bold text-emerald-400 mb-8 text-center">Sigue Wallet</h1>
+<body class="bg-white text-kraken-black min-h-screen flex items-center justify-center">
 
-    <% if (error) { %>
-      <div class="bg-red-900/50 border border-red-700 text-red-300 px-4 py-3 rounded mb-6">
-        <%= error %>
+  <div class="w-full max-w-sm px-4">
+    <!-- Logo / Brand -->
+    <div class="text-center mb-10">
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-kraken-purple mb-4">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 3v18M7 3l10 18M17 3v18"/>
+        </svg>
       </div>
-    <% } %>
+      <h1 class="text-2xl font-bold tracking-tight" style="color: #101114">Sigue Wallet</h1>
+      <p class="text-sm mt-1" style="color: #9497a9">Tu portafolio crypto multi-chain</p>
+    </div>
 
-    <form method="POST" action="/login" class="bg-gray-800 rounded-xl p-8 border border-gray-700">
-      <div class="mb-6">
-        <label class="block text-gray-300 mb-2" for="username">Usuario</label>
-        <input type="text" name="username" id="username" required
-          class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-400">
-      </div>
+    <!-- Login Card -->
+    <div class="bg-white rounded-2xl p-8" style="box-shadow: rgba(0,0,0,0.03) 0px 4px 24px; border: 1px solid #dedee5">
 
-      <div class="mb-6">
-        <label class="block text-gray-300 mb-2" for="password">Contraseña</label>
-        <input type="password" name="password" id="password" required
-          class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-400">
-      </div>
+      <% if (error) { %>
+        <div class="mb-6 px-4 py-3 rounded-lg text-sm" style="background: rgba(20,158,97,0.16); color: #026b3f; border: 1px solid rgba(20,158,97,0.3)">
+          <%= error %>
+        </div>
+      <% } %>
 
-      <button type="submit"
-        class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition">
-        Entrar
-      </button>
-    </form>
+      <form method="POST" action="/login">
+        <div class="space-y-5">
+          <div>
+            <label class="block text-sm font-medium mb-2" style="color: #101114" for="username">Usuario</label>
+            <input type="text" name="username" id="username" required
+              placeholder="tu usuario"
+              class="w-full px-4 py-3 rounded-lg text-sm transition-all"
+              style="background: #fff; border: 1.5px solid #dedee5; color: #101114; outline: none"
+              onfocus="this.style.borderColor='#7132f5'"
+              onblur="this.style.borderColor='#dedee5'">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2" style="color: #101114" for="password">Contraseña</label>
+            <input type="password" name="password" id="password" required
+              placeholder="••••••••"
+              class="w-full px-4 py-3 rounded-lg text-sm transition-all"
+              style="background: #fff; border: 1.5px solid #dedee5; color: #101114; outline: none"
+              onfocus="this.style.borderColor='#7132f5'"
+              onblur="this.style.borderColor='#dedee5'">
+          </div>
+
+          <button type="submit"
+            class="w-full py-3 rounded-xl text-white text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.98]"
+            style="background: #7132f5; padding: 13px 16px">
+            Entrar
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <p class="text-center text-xs mt-6" style="color: #9497a9">
+      Portafolio crypto · 7 cadenas · 8 protocolos
+    </p>
   </div>
+
 </body>
 </html>
