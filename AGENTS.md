@@ -73,3 +73,26 @@ Chains: ethereum, bsc, polygon, avalanche, optimism, fantom, arbitrum, sonic.
 ## Voz
 
 Edge TTS con `es-AR-TomasNeural`. Solo audio en Telegram, sin texto.
+
+## Design System
+
+**Kraken Design System** — aplicado a todas las vistas.
+
+Paleta:
+- Primary: `#7132f5` (Kraken Purple)
+- Text: `#101114` (near black)
+- Muted: `#9497a9` (silver)
+- Border: `#dedee5`
+- Success green: `#149e61` / `#026b3f`
+- Purple subtle: `rgba(133,91,251,0.16)`
+- Background: `#ffffff` (white, NOT dark)
+
+Tipografía: Inter (Google Fonts CDN)
+
+Componentes:
+- Buttons: `border-radius: 12px`, padding `13px 16px`
+- Cards: `border-radius: 16px`, shadow `rgba(0,0,0,0.03) 0px 4px 24px`
+- Inputs: border `#dedee5`, focus border `#7132f5`
+- Badges: purple subtle bg + purple text
+
+NO usar Tailwind defaults (bg-gray-900, text-emerald, etc). Usar siempre la paleta Kraken.
