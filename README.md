@@ -12,9 +12,11 @@ Crypto portfolio dashboard — track wallet balances across multi-chain DeFi.
 ## Setup
 
 ```bash
-npm install
-cp .env.example .env   # edit SESSION_SECRET
-npm start
+git clone https://github.com/lucas77x/sigue-wallet.git
+cd sigue-wallet
+pnpm install
+cp .env.example .env          # add THEGRAPH_API_KEY
+pnpm start
 ```
 
 Open http://localhost:3000 — default login: `admin` / `sigue2026`

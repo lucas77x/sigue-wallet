@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Crypto portfolio dashboard — track wallet balances across multi-chain DeFi",
   "type": "module",
+  "packageManager": "pnpm@9.0.0",
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
