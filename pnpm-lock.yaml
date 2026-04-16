@@ -15,8 +15,8 @@ importers:
         specifier: ^8.0.2
         version: 8.0.2
       '@fastify/session':
-        specifier: ^10.9.0
-        version: 10.9.0
+        specifier: ^11.1.1
+        version: 11.1.1
       '@fastify/static':
         specifier: ^9.1.0
         version: 9.1.0
@@ -24,8 +24,8 @@ importers:
         specifier: ^11.1.1
         version: 11.1.1
       axios:
-        specifier: ^1.7.9
-        version: 1.15.0
+        specifier: ^1.14.0
+        version: 1.14.0
       bcrypt:
         specifier: ^5.1.1
         version: 5.1.1
@@ -162,8 +162,8 @@ packages:
   '@fastify/send@4.1.0':
     resolution: {integrity: sha512-TMYeQLCBSy2TOFmV95hQWkiTYgC/SEx7vMdV+wnZVX4tt8VBLKzmH8vV9OzJehV0+XBfg+WxPMt5wp+JBUKsVw==}
 
-  '@fastify/session@10.9.0':
-    resolution: {integrity: sha512-u/c42RuAaxCeEuRCAwK2+/SfGqKOd0NSyRzEvDwFBWySQoKUZQyb9OmmJSWJBbOP1OfaU2OsDrjbPbghE1l/YQ==}
+  '@fastify/session@11.1.1':
+    resolution: {integrity: sha512-nuKwTHxh3eJsI4NJeXoYVGzXUsg+kH1WfHgS7IofVyVhmjc+A6qGr+29WQy8hYZiNtmCjfG415COpf5xTBkW4Q==}
 
   '@fastify/static@9.1.0':
     resolution: {integrity: sha512-EPRNQYqEYEYTK8yyGbcM0iHpyJaupb94bey5O6iCQfLTADr02kaZU+qeHSdd9H9TiMwTBVkrMa59V8CMbn3avQ==}
@@ -434,8 +434,8 @@ packages:
   avvio@9.2.0:
     resolution: {integrity: sha512-2t/sy01ArdHHE0vRH5Hsay+RtCZt3dLPji7W7/MMOCEgze5b7SNDC4j5H6FnVgPkI1MTNFGzHdHrVXDDl7QSSQ==}
 
-  axios@1.15.0:
-    resolution: {integrity: sha512-wWyJDlAatxk30ZJer+GeCWS209sA42X+N5jU2jy6oHTp7ufw8uzUTVFBX9+wTfAlhiJXGS0Bq7X6efruWjuK9Q==}
+  axios@1.14.0:
+    resolution: {integrity: sha512-3Y8yrqLSwjuzpXuZ0oIYZ/XGgLwUIBU3uLvbcpb0pidD9ctpShJd43KSlEEkVQg6DS0G9NKyzOvBfUtDKEyHvQ==}
 
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
@@ -698,9 +698,6 @@ packages:
 
   fast-uri@3.1.0:
     resolution: {integrity: sha512-iPeeDKJSWf4IEOasVVrknXpaBV0IApz/gp7S2bb7Z4Lljbl2MGJRqInZiUrQwV16cpzw/D3S5j5Julj/gT52AA==}
-
-  fastify-plugin@4.5.1:
-    resolution: {integrity: sha512-stRHYGeuqpEZTL1Ef0Ovr2ltazUT9g844X5z/zEBFLG8RYlpDiOCIG+ATvYEp+/zmc7sN29mcIMp8gvYplYPIQ==}
 
   fastify-plugin@5.1.0:
     resolution: {integrity: sha512-FAIDA8eovSt5qcDgcBvDuX/v0Cjz0ohGhENZ/wpc3y+oZCY2afZ9Baqql3g/lC+OHRnciQol4ww7tuthOb9idw==}
@@ -1711,9 +1708,9 @@ snapshots:
       http-errors: 2.0.1
       mime: 3.0.0
 
-  '@fastify/session@10.9.0':
+  '@fastify/session@11.1.1':
     dependencies:
-      fastify-plugin: 4.5.1
+      fastify-plugin: 5.1.0
       safe-stable-stringify: 2.5.0
 
   '@fastify/static@9.1.0':
@@ -1966,7 +1963,7 @@ snapshots:
       '@fastify/error': 4.2.0
       fastq: 1.20.1
 
-  axios@1.15.0:
+  axios@1.14.0:
     dependencies:
       follow-redirects: 1.16.0
       form-data: 4.0.5
@@ -2221,8 +2218,6 @@ snapshots:
       fast-decode-uri-component: 1.0.1
 
   fast-uri@3.1.0: {}
-
-  fastify-plugin@4.5.1: {}
 
   fastify-plugin@5.1.0: {}
 
