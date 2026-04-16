@@ -107,6 +107,38 @@ describe('getWalletBalances', () => {
     expect(result[0].symbol).toBe('USDT');
   });
 
+  it('filters out round-number airdrop tokens (e.g. 200,000 PUMP)', async () => {
+    axios.get.mockResolvedValueOnce({
+      data: {
+        data: [
+          // Spam: exactly 200,000 integer tokens with fake USD value
+          { symbol: 'PUMP', name: 'Pump Token', amount: '200000000000000000000000', decimals: 18, value: 200000 },
+          // Legit: fractional balance from real trading
+          { symbol: 'XVS', name: 'Venus', amount: '3422700000000000000', decimals: 18, value: 3.42 },
+        ],
+      },
+    });
+
+    const result = await getWalletBalances(MOCK_ADDRESS, 'bsc');
+    expect(result).toHaveLength(1);
+    expect(result[0].symbol).toBe('XVS');
+  });
+
+  it('keeps tokens with round balances <= 1000 (conservative threshold)', async () => {
+    axios.get.mockResolvedValueOnce({
+      data: {
+        data: [
+          // 500 USDT — round but below threshold, keep it
+          { symbol: 'USDT', name: 'Tether', amount: '500000000', decimals: 6, value: 500 },
+        ],
+      },
+    });
+
+    const result = await getWalletBalances(MOCK_ADDRESS, 'ethereum');
+    expect(result).toHaveLength(1);
+    expect(result[0].symbol).toBe('USDT');
+  });
+
   it('filters out tokens with astronomically large balances (> 1 trillion)', async () => {
     axios.get.mockResolvedValueOnce({
       data: {

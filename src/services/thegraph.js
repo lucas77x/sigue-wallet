@@ -52,8 +52,23 @@ const MAX_REALISTIC_BALANCE = 1e12; // > 1 trillion formatted tokens = overflow 
 
 function isSpamToken(token) {
   const nameSymbol = `${token.name ?? ''} ${token.symbol ?? ''}`;
+
+  // 1. URL/phishing patterns in name or symbol
   if (SPAM_NAME_PATTERN.test(nameSymbol)) return true;
-  if (parseFloat(token.balance) > MAX_REALISTIC_BALANCE) return true;
+
+  const balance = parseFloat(token.balance);
+
+  // 2. Astronomically large formatted balance (overflow or trillion-supply spam)
+  if (balance > MAX_REALISTIC_BALANCE) return true;
+
+  // 3. Round-number airdrop pattern: spam tokens are distributed in exact integers
+  //    (e.g. 200,000 PUMP, 1,024 DogX). Real holdings from trading/staking always
+  //    have fractional parts (3.4227 XVS, 203.8280 CHAIN). We flag tokens with:
+  //    integer-formatted balance > 1,000 AND meaningful USD value.
+  //    Known trade-off: would false-positive on exactly round purchases (e.g. exactly
+  //    2,000 USDT with zero cents) — acceptable given how rare that is in practice.
+  if (balance > 1_000 && balance === Math.floor(balance) && token.valueUsd > 10) return true;
+
   return false;
 }
 
