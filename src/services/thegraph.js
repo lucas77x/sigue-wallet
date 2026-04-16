@@ -44,18 +44,18 @@ export async function getWalletBalances(address, chain) {
 
     if (!data?.data || !Array.isArray(data.data)) return [];
 
+    // API fields: `amount` (raw string), `value` (USD float), `decimals`
     return data.data
       .map((token) => ({
         chain,
         symbol: token.symbol || 'UNKNOWN',
         name: token.name || '',
-        balance: formatBalance(token.balance, token.decimals),
+        balance: formatBalance(token.amount, token.decimals),
         decimals: token.decimals,
         contract: token.contract || null,
-        priceUsd: token.price_usd || 0,
-        valueUsd: token.value_usd || 0,
+        valueUsd: token.value || 0,
       }))
-      // Filter out dust/spam: zero balance after formatting AND zero USD value
+      // Filter out dust/spam: zero formatted balance AND zero USD value
       .filter((t) => parseFloat(t.balance) > 0 || t.valueUsd > 0)
       // Sort by USD value descending
       .sort((a, b) => b.valueUsd - a.valueUsd);

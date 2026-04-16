@@ -47,11 +47,10 @@ describe('getWalletBalances', () => {
           {
             symbol: 'ETH',
             name: 'Ether',
-            balance: '1000000000000000000', // 1 ETH in wei
+            amount: '1000000000000000000', // 1 ETH in wei — real API field
             decimals: 18,
             contract: null,
-            price_usd: 2000,
-            value_usd: 2000,
+            value: 2000,                  // real API field (USD)
           },
         ],
       },
@@ -60,7 +59,6 @@ describe('getWalletBalances', () => {
     const [token] = await getWalletBalances(MOCK_ADDRESS, 'ethereum');
     expect(token.symbol).toBe('ETH');
     expect(token.balance).toBe('1.0000');
-    expect(token.priceUsd).toBe(2000);
     expect(token.valueUsd).toBe(2000);
     expect(token.chain).toBe('ethereum');
   });
@@ -142,8 +140,8 @@ describe('getPortfolioBalances', () => {
 
   it('flattens balances from multiple chains into a single array', async () => {
     axios.get
-      .mockResolvedValueOnce({ data: { data: [{ symbol: 'ETH', balance: '1000000000000000000', decimals: 18 }] } })
-      .mockResolvedValueOnce({ data: { data: [{ symbol: 'MATIC', balance: '5000000000000000000', decimals: 18 }] } });
+      .mockResolvedValueOnce({ data: { data: [{ symbol: 'ETH', amount: '1000000000000000000', decimals: 18, value: 2000 }] } })
+      .mockResolvedValueOnce({ data: { data: [{ symbol: 'MATIC', amount: '5000000000000000000', decimals: 18, value: 3 }] } });
 
     const wallets = [{ id: 1, address: '0xmulti', chains: ['ethereum', 'polygon'] }];
     const [result] = await getPortfolioBalances(wallets);
