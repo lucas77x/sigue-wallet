@@ -1,0 +1,6 @@
+node_modules/
+public/
+coverage/
+*.db
+pnpm-lock.yaml
+src/views/
