@@ -9,7 +9,7 @@ import ejs from 'ejs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { runMigrations } from './models/migrate.js';
+import { runMigrations } from './models/db.js';
 import { initializeAdminUser } from './models/user.js';
 import { loadUser } from './middleware/auth.js';
 
