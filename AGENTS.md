@@ -4,7 +4,7 @@ Documentación para agentes que trabajen en este proyecto.
 
 ## Proyecto
 
-App de dashboard crypto multi-chain para Lucas. Port 3000. Stack: Fastify 5 + Knex + better-sqlite3 + EJS + Tailwind CDN (sin build step). JavaScript ESM puro (no TypeScript).
+App de dashboard crypto multi-chain para Lucas. Port 3000. Stack: Fastify 5 + Knex + better-sqlite3 + EJS + Tailwind CSS local (sin build step). JavaScript ESM puro (no TypeScript).
 
 ## Ramas
 
@@ -31,7 +31,7 @@ pnpm dev               # arranca en http://localhost:3000
 
 | Variable | Requerida | Descripción |
 |----------|-----------|-------------|
-| `THEGRAPH_API_KEY` | Sí | API key de The Graph Token API |
+| `THEGRAPH_API_KEY` | Sí | JWT token de thegraph.market/dashboard (columna "API Token") — NO el API Key de 32 chars |
 | `SESSION_SECRET` | Sí | Mínimo 32 chars — el server no arranca sin esto |
 | `PORT` | No | Default: `3000` |
 | `HOST` | No | Default: `0.0.0.0` |
@@ -42,9 +42,23 @@ pnpm dev               # arranca en http://localhost:3000
 - SQLite en `sigue-wallet.db` (gitignored)
 - Migrations en `src/models/migrations/` — archivos JS con `up()` / `down()`
 - Knex trackea migraciones en tabla `knex_migrations` — idempotente
-- Tablas: `wallets` (con `user_id` FK), `users`, `snapshots`
+- Tablas: `users`, `wallets` (con `user_id` FK y `chains` JSON array), `snapshots`
 
 **No usar SQL raw** — usar Knex schema builder. No usar `createTableIfNotExists` (deprecado).
+
+### Schema actual de `wallets`
+
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| id | INTEGER PK | |
+| user_id | INTEGER FK | → users.id CASCADE DELETE |
+| alias | TEXT | |
+| address | TEXT | Siempre lowercase |
+| chains | TEXT | JSON array, e.g. `["ethereum","polygon"]` |
+| created_at | TEXT | |
+| updated_at | TEXT | |
+
+> **IMPORTANTE:** El campo es `chains` (JSON array), NO `chain` (TEXT). Fue migrado en `20260416000001_wallets_chains_json.js`. El modelo `wallet.js` serializa/deserializa automáticamente.
 
 ## Fastify 5 — Notas Importantes
 
@@ -71,33 +85,52 @@ pnpm dev               # arranca en http://localhost:3000
 | GET | `/api/wallets/:id` | API — billetera por ID |
 | GET | `/api/portfolio/wallet/:id` | API — balances por billetera |
 
-**Prefijos API correctos:** Las rutas API se registran con `{ prefix: '/api/wallets' }` y `{ prefix: '/api/portfolio' }` en `server.js`.
+**Prefijos API:** Las rutas API se registran con `{ prefix: '/api/wallets' }` y `{ prefix: '/api/portfolio' }` en `server.js`.
 
 ## API Externa — The Graph Token API
 
-- **Endpoint real:** `https://token-api.thegraph.com/v1/evm/balances`
-- **Auth:** `Authorization: Bearer {THEGRAPH_API_KEY}` (header)
-- **Params:** `?network_id={networkId}&address={address}`
-- Requiere `THEGRAPH_API_KEY` en `.env`
+- **Endpoint:** `https://token-api.thegraph.com/v1/evm/balances`
+- **Auth:** `Authorization: Bearer {JWT}` (header)
+- **Params:** `?network={networkId}&address={address}` (NO `network_id`, es `network`)
 - Free tier: 100k queries/mes
 
-### Network IDs
+### Campos de respuesta (campos reales de la API)
 
-| Chain | network_id |
-|-------|-----------|
-| ethereum | `mainnet` |
-| bsc | `bsc` |
-| polygon | `matic` |
-| avalanche | `avalanche` |
-| optimism | `optimism` |
-| arbitrum | `arbitrum-one` |
-| fantom | — |
-| sonic | — |
+| Campo API | Campo mapeado | Notas |
+|-----------|--------------|-------|
+| `amount` | `balance` | Raw string en wei — se divide por `10^decimals` usando BigInt |
+| `value` | `valueUsd` | USD float |
+| `decimals` | `decimals` | |
+| `symbol` | `symbol` | |
+| `name` | `name` | |
+| `contract` | `contract` | null para token nativo |
 
-### Limitaciones Conocidas
+> **NO usar** `balance` (no existe), `value_usd` (no existe), ni `price_usd` (no existe).
 
-- **Fantom** y **Sonic** no están soportados por el Token API — `getWalletBalances()` retorna `[]` con un warning en consola
-- Si se agregan wallets en esas chains, no mostrarán balances hasta que The Graph las soporte
+### Network IDs correctos
+
+| Chain | network param | Soportado |
+|-------|--------------|-----------|
+| ethereum | `mainnet` | ✅ |
+| bsc | `bsc` | ✅ |
+| polygon | `polygon` | ✅ (NO `matic`) |
+| avalanche | `avalanche` | ✅ |
+| optimism | `optimism` | ✅ |
+| arbitrum | `arbitrum-one` | ✅ |
+| fantom | — | ❌ retorna `[]` con warning |
+| sonic | — | ❌ retorna `[]` con warning |
+
+### Spam token filtering
+
+`getWalletBalances` aplica tres filtros client-side (la API no tiene filtrado nativo):
+
+1. **URL/phishing patterns** en nombre o símbolo: `https://`, `www.`, `.com`, `.net`, `.io`, `.org`, `claim`, `airdrop`, `reward`, `visit`, `prize`
+2. **Balance > 1 trillion** (overflow o supply astronómico)
+3. **Round-number airdrop**: balance entero > 1,000 con valueUsd > $10 (spam se distribuye en cantidades redondas exactas; tokens legítimos de trading siempre tienen decimales)
+
+### formatBalance usa BigInt
+
+`Number()` pierde precisión para valores `> 2^53`. `formatBalance()` usa `BigInt` para la división entera, solo convierte a `Number` para el `.toFixed(4)` final.
 
 ## Testing
 
@@ -111,7 +144,7 @@ pnpm test:coverage     # coverage report
 
 - **Models:** In-memory SQLite real (`:memory:`) — NO mockear la DB en tests de modelo
 - **Services:** Mock `axios` con factory explícita: `vi.mock('axios', () => ({ default: { get: vi.fn(), post: vi.fn() } }))`
-- **Middleware:** Mock `findUserById` con `vi.mock('../src/models/user.js')`
+- **Middleware:** Mock de `findUserById`
 - **Routes:** `fastify.inject()` con instancia mínima de Fastify
 
 ### Configuración Vitest
@@ -120,20 +153,35 @@ pnpm test:coverage     # coverage report
 
 **Nunca modificar el código fuente para hacer tests**. Si algo no es testeable, refactorizar la API del módulo.
 
+### Estado actual
+
+72 tests, 7 archivos, todos en verde.
+
 ## Seguridad
 
-- `axios` fijado en `"1.14.0"` (sin `^`) — la versión `1.14.1` fue comprometida en un supply chain attack (marzo 2026, Sapphire Sleet). No actualizar sin verificar primero.
 - `SESSION_SECRET` mínimo 32 chars. El servidor hace `process.exit(1)` si no está seteado.
 - `loadUser` en `middleware/auth.js` NUNCA expone `password_hash` en `request.user`.
 - XSS: el dashboard usa `esc()` helper para escapar datos de API antes de hacer `innerHTML`.
+- `axios@1.15.0` — incluye fix de CRLF header injection y SSRF via no_proxy bypass.
+
+## Assets Estáticos
+
+- **Tailwind:** `public/tailwind.min.js` (copia local del Play CDN — sin dependencia externa)
+- **Logos de chains:** `public/images/chains/{chain}.png` (o `.svg` para Sonic)
+- Todos los logos están descargados localmente. No hay CDN de imágenes.
+
+## Dashboard — Notas de Implementación
+
+- **Multi-chain:** cada wallet puede tener múltiples chains. El formulario envía `chains[]` como array.
+- **Expandable rows:** `<details>/<summary>` nativo de HTML — sin JS para expand/collapse.
+- **Copy contract:** ícono sutil por fila de token (`.opacity-0.group-hover:opacity-100`). Al hacer click muestra ✓ verde por 1.2s. No aparece para tokens sin contrato (ETH nativo).
+- **Fetch por wallet:** el dashboard hace `fetch(/api/portfolio/wallet/${id})` por cada wallet al cargar. Los balances se muestran en skeleton hasta que responde la API.
 
 ## Billeteras Cargadas
 
-| Alias | Address | Chain |
-|-------|---------|-------|
-| Lucas1 | `0x88a700a156935697a73c986adbfa0032ef8a7e25` | ethereum |
-| Lucas2 | `0x03c506af90ca423dd47b1c36f40ab4c31222199a` | bsc |
-| Luora | `0xd093da75a0564bab73b300ef5008b28025fb6e19` | polygon |
+| Alias | Address | Chains |
+|-------|---------|--------|
+| Lucas1 | `0x88a700a156935697a73c986adbfa0032ef8a7e25` | ethereum, bsc, polygon |
 
 ## Usuario Admin
 
@@ -149,17 +197,10 @@ Paleta:
 - Text: `#101114` (near black)
 - Muted: `#9497a9` (silver)
 - Border: `#dedee5`
-- Success green: `#149e61` / `#026b3f`
-- Purple subtle: `rgba(133,91,251,0.16)`
+- Success green: `#149e61`
 - Background: `#ffffff` (blanco, NO dark mode)
 
 Tipografía: Inter (Google Fonts CDN)
-
-Componentes:
-- Buttons: `border-radius: 12px`, padding `13px 16px`
-- Cards: `border-radius: 16px`, shadow `rgba(0,0,0,0.03) 0px 4px 24px`
-- Inputs: border `#dedee5`, focus border `#7132f5`
-- Badges: purple subtle bg + purple text
 
 NO usar Tailwind defaults (bg-gray-900, text-emerald, etc). Usar siempre la paleta Kraken.
 
