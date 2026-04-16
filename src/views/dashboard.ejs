@@ -124,19 +124,30 @@
 
   <!-- Footer Script for Fetching Balances -->
   <script>
-    async function fetchBalances(walletId, address, chain) {
+    // Safe text escaping to prevent XSS when building HTML strings
+    function esc(str) {
+      const el = document.createElement('span');
+      el.textContent = String(str ?? '');
+      return el.innerHTML;
+    }
+
+    async function fetchBalances(walletId) {
       const container = document.getElementById(`balances-${walletId}`);
       if (!container) return;
 
       try {
-        const response = await fetch(`/api/portfolio?address=${address}&chain=${chain}`);
+        const response = await fetch(`/api/portfolio/wallet/${walletId}`);
         const data = await response.json();
+        const balances = data.portfolio?.balances ?? [];
 
-        if (data.balances && data.balances.length > 0) {
-          container.innerHTML = data.balances.map(b => `
+        if (balances.length > 0) {
+          container.innerHTML = balances.map(b => `
             <div class="flex justify-between items-center py-1.5 border-b border-kraken-border last:border-0">
-              <span class="font-medium text-kraken-text">${b.symbol}</span>
-              <span class="text-kraken-text font-medium">${b.balance}</span>
+              <span class="font-medium text-kraken-text">${esc(b.symbol)}</span>
+              <div class="text-right">
+                <div class="text-kraken-text font-medium">${esc(b.balance)}</div>
+                ${b.valueUsd ? `<div class="text-xs text-kraken-muted">$${esc(Number(b.valueUsd).toFixed(2))}</div>` : ''}
+              </div>
             </div>
           `).join('');
         } else {
@@ -149,9 +160,9 @@
     }
 
     // Fetch all wallet balances on page load
-    const walletsData = <%= JSON.stringify(wallets) %>;
+    const walletsData = <%- JSON.stringify(wallets) %>;
     walletsData.forEach(wallet => {
-      fetchBalances(wallet.id, wallet.address, wallet.chain);
+      fetchBalances(wallet.id);
     });
   </script>
 </body>
