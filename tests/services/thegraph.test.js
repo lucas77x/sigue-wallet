@@ -34,7 +34,7 @@ describe('getWalletBalances', () => {
     expect(axios.get).toHaveBeenCalledWith(
       'https://token-api.thegraph.com/v1/evm/balances',
       expect.objectContaining({
-        params: { network_id: 'mainnet', address: MOCK_ADDRESS.toLowerCase() },
+        params: { network: 'mainnet', address: MOCK_ADDRESS.toLowerCase() },
         headers: expect.objectContaining({ Authorization: expect.stringMatching(/^Bearer/) }),
       })
     );
@@ -91,7 +91,7 @@ describe('getWalletBalances', () => {
     const chains = [
       ['ethereum', 'mainnet'],
       ['bsc', 'bsc'],
-      ['polygon', 'matic'],
+      ['polygon', 'polygon'],
       ['avalanche', 'avalanche'],
       ['optimism', 'optimism'],
       ['arbitrum', 'arbitrum-one'],
@@ -102,7 +102,7 @@ describe('getWalletBalances', () => {
       await getWalletBalances(MOCK_ADDRESS, chain);
       expect(axios.get).toHaveBeenLastCalledWith(
         expect.any(String),
-        expect.objectContaining({ params: expect.objectContaining({ network_id: expectedNetworkId }) })
+        expect.objectContaining({ params: expect.objectContaining({ network: expectedNetworkId }) })
       );
     }
   });

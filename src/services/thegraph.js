@@ -7,10 +7,11 @@ const API_KEY = process.env.THEGRAPH_API_KEY || '';
  * Map from internal chain names to The Graph Token API network IDs.
  * null = not supported by the Token API (returns empty array with warning).
  */
+// Verified network slugs for The Graph Token API (param: ?network=)
 const NETWORK_IDS = {
   ethereum: 'mainnet',
   bsc: 'bsc',
-  polygon: 'matic',
+  polygon: 'polygon',
   avalanche: 'avalanche',
   optimism: 'optimism',
   arbitrum: 'arbitrum-one',
@@ -33,7 +34,7 @@ export async function getWalletBalances(address, chain) {
 
   try {
     const { data } = await axios.get(`${TOKEN_API_BASE}/v1/evm/balances`, {
-      params: { network_id: networkId, address: address.toLowerCase() },
+      params: { network: networkId, address: address.toLowerCase() },
       headers: {
         Authorization: `Bearer ${API_KEY}`,
         Accept: 'application/json',
