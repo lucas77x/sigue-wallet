@@ -57,7 +57,7 @@ describe('GET /api/wallets', () => {
   });
 
   it('returns all wallets for the authenticated user', async () => {
-    await db('wallets').insert({ user_id: testUserId, alias: 'MyWallet', address: '0xabc', chain: 'ethereum' });
+    await db('wallets').insert({ user_id: testUserId, alias: 'MyWallet', address: '0xabc', chains: '["ethereum"]' });
 
     const response = await app.inject({ method: 'GET', url: '/api/wallets' });
     const wallets = JSON.parse(response.body);
@@ -68,7 +68,7 @@ describe('GET /api/wallets', () => {
 
 describe('GET /api/wallets/:id', () => {
   it('returns a single wallet by id', async () => {
-    const [id] = await db('wallets').insert({ user_id: testUserId, alias: 'One', address: '0xdef', chain: 'bsc' });
+    const [id] = await db('wallets').insert({ user_id: testUserId, alias: 'One', address: '0xdef', chains: '["bsc"]' });
 
     const response = await app.inject({ method: 'GET', url: `/api/wallets/${id}` });
     expect(response.statusCode).toBe(200);
@@ -86,7 +86,7 @@ describe('POST /api/wallets', () => {
     const response = await app.inject({
       method: 'POST',
       url: '/api/wallets',
-      payload: { alias: 'New', address: '0x123456', chain: 'polygon' },
+      payload: { alias: 'New', address: '0x123456', chains: ['polygon'] },
     });
 
     expect(response.statusCode).toBe(200);
@@ -98,12 +98,12 @@ describe('POST /api/wallets', () => {
 
 describe('PUT /api/wallets/:id', () => {
   it('updates an existing wallet', async () => {
-    const [id] = await db('wallets').insert({ user_id: testUserId, alias: 'Old', address: '0x999', chain: 'ethereum' });
+    const [id] = await db('wallets').insert({ user_id: testUserId, alias: 'Old', address: '0x999', chains: '["ethereum"]' });
 
     await app.inject({
       method: 'PUT',
       url: `/api/wallets/${id}`,
-      payload: { alias: 'Updated', address: '0x999', chain: 'ethereum' },
+      payload: { alias: 'Updated', address: '0x999', chains: ['ethereum'] },
     });
 
     const [updated] = await db('wallets').where({ id });
@@ -113,7 +113,7 @@ describe('PUT /api/wallets/:id', () => {
 
 describe('DELETE /api/wallets/:id', () => {
   it('deletes the wallet', async () => {
-    const [id] = await db('wallets').insert({ user_id: testUserId, alias: 'Bye', address: '0x777', chain: 'bsc' });
+    const [id] = await db('wallets').insert({ user_id: testUserId, alias: 'Bye', address: '0x777', chains: '["bsc"]' });
 
     const response = await app.inject({ method: 'DELETE', url: `/api/wallets/${id}` });
     expect(response.statusCode).toBe(200);

@@ -24,7 +24,7 @@ export async function createTestDb() {
     t.integer('user_id').references('id').inTable('users').onDelete('CASCADE');
     t.text('alias').notNullable();
     t.text('address').notNullable().unique();
-    t.text('chain').notNullable().defaultTo('eth');
+    t.text('chains').notNullable().defaultTo('[]');
     t.text('notes');
     t.datetime('created_at').defaultTo(db.fn.now());
     t.datetime('updated_at').defaultTo(db.fn.now());

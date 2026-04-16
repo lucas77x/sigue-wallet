@@ -4,84 +4,111 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= wallet ? 'Editar' : 'Nueva' %> Billetera — Sigue Wallet</title>
+  <script src="/static/tailwind.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    * { font-family: 'Inter', sans-serif; }
-  </style>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary: '#7132f5' },
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
 </head>
-<body style="background: #ffffff; color: #101114; min-height: 100vh; margin: 0;">
-  <nav style="background: #ffffff; border-bottom: 1px solid #dedee5; padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between;">
-    <a href="/dashboard" style="font-size: 20px; font-weight: 700; color: #7132f5; text-decoration: none;">Sigue Wallet</a>
-    <div style="display: flex; align-items: center; gap: 32px;">
-      <a href="/dashboard" style="color: #9497a9; text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s;" onmouseover="this.style.color='#101114'" onmouseout="this.style.color='#9497a9'">Dashboard</a>
-      <a href="/wallets" style="color: #101114; text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s;" onmouseover="this.style.color='#7132f5'" onmouseout="this.style.color='#101114'">Billeteras</a>
-      <a href="/logout" style="color: #9497a9; text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#9497a9'">Salir</a>
+<body class="bg-white text-[#101114] min-h-screen" style="font-family: 'Inter', sans-serif;">
+
+  <nav class="bg-white border-b border-[#dedee5] px-6 py-4">
+    <div class="flex items-center justify-between max-w-6xl mx-auto">
+      <a href="/dashboard" class="flex items-center gap-2">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#7132f5"/><path d="M10 14h12M10 18h8" stroke="white" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="18" r="3" stroke="white" stroke-width="2"/></svg>
+        <span class="text-xl font-bold text-[#101114]">Sigue Wallet</span>
+      </a>
+      <div class="flex items-center gap-6">
+        <a href="/dashboard" class="text-[#9497a9] hover:text-primary text-sm font-medium transition">Dashboard</a>
+        <a href="/wallets" class="text-[#101114] hover:text-primary text-sm font-medium transition">Billeteras</a>
+        <a href="/logout" class="text-red-500 hover:text-red-600 text-sm font-medium transition">Salir</a>
+      </div>
     </div>
   </nav>
 
-  <main style="padding: 48px 24px; max-width: 480px; margin: 0 auto;">
-    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px;">
-      <h1 style="font-size: 24px; font-weight: 700; color: #101114; margin: 0;"><%= wallet ? 'Editar Billetera' : 'Nueva Billetera' %></h1>
-      <a href="/wallets" style="color: #9497a9; text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s;" onmouseover="this.style.color='#7132f5'" onmouseout="this.style.color='#9497a9'">← Volver</a>
+  <main class="px-6 py-10 max-w-xl mx-auto">
+    <div class="flex items-center justify-between mb-8">
+      <h1 class="text-2xl font-bold"><%= wallet ? 'Editar Billetera' : 'Nueva Billetera' %></h1>
+      <a href="/wallets" class="text-[#9497a9] hover:text-primary text-sm font-medium transition">← Volver</a>
     </div>
 
     <% if (error) { %>
-      <div style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 12px 16px; border-radius: 12px; margin-bottom: 24px; font-size: 14px;">
+      <div class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl mb-6 text-sm">
         <%= error %>
       </div>
     <% } %>
 
-    <form method="POST" action="<%= wallet ? '/wallets/' + wallet.id : '/wallets' %>" style="background: #ffffff; border: 1px solid #dedee5; border-radius: 16px; padding: 32px; box-shadow: rgba(0,0,0,0.03) 0px 4px 24px;">
-      <div style="margin-bottom: 24px;">
-        <label style="display: block; color: #101114; font-size: 14px; font-weight: 600; margin-bottom: 8px;" for="alias">Alias</label>
+    <form method="POST" action="<%= wallet ? '/wallets/' + wallet.id : '/wallets' %>"
+      class="bg-white border border-[#dedee5] rounded-2xl p-8 shadow-[rgba(0,0,0,0.03)_0px_4px_24px]">
+
+      <!-- Alias -->
+      <div class="mb-6">
+        <label class="block text-sm font-semibold text-[#101114] mb-2" for="alias">Alias</label>
         <input type="text" name="alias" id="alias" required
           value="<%= wallet ? wallet.alias : '' %>"
           placeholder="ej: MetaMask Principal"
-          style="width: 100%; background: #ffffff; border: 1px solid #dedee5; border-radius: 12px; padding: 12px 16px; font-size: 14px; color: #101114; box-sizing: border-box; outline: none; transition: border-color 0.2s;"
-          onfocus="this.style.borderColor='#7132f5'"
-          onblur="this.style.borderColor='#dedee5'">
+          class="w-full border border-[#dedee5] rounded-xl px-4 py-3 text-sm text-[#101114] outline-none focus:border-primary transition">
       </div>
 
-      <div style="margin-bottom: 24px;">
-        <label style="display: block; color: #101114; font-size: 14px; font-weight: 600; margin-bottom: 8px;" for="address">Dirección</label>
+      <!-- Dirección -->
+      <div class="mb-6">
+        <label class="block text-sm font-semibold text-[#101114] mb-2" for="address">Dirección</label>
         <input type="text" name="address" id="address" required
           value="<%= wallet ? wallet.address : '' %>"
           placeholder="0x..."
-          style="width: 100%; background: #ffffff; border: 1px solid #dedee5; border-radius: 12px; padding: 12px 16px; font-size: 14px; color: #101114; font-family: monospace; box-sizing: border-box; outline: none; transition: border-color 0.2s;"
-          onfocus="this.style.borderColor='#7132f5'"
-          onblur="this.style.borderColor='#dedee5'">
+          class="w-full border border-[#dedee5] rounded-xl px-4 py-3 text-sm text-[#101114] font-mono outline-none focus:border-primary transition">
       </div>
 
-      <div style="margin-bottom: 32px;">
-        <label style="display: block; color: #101114; font-size: 14px; font-weight: 600; margin-bottom: 8px;" for="chain">Cadena</label>
-        <select name="chain" id="chain" required
-          style="width: 100%; background: #ffffff; border: 1px solid #dedee5; border-radius: 12px; padding: 12px 16px; font-size: 14px; color: #101114; box-sizing: border-box; outline: none; transition: border-color 0.2s; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%239497a9%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 20px;"
-          onfocus="this.style.borderColor='#7132f5'"
-          onblur="this.style.borderColor='#dedee5'">
-          <option value="">Seleccionar cadena</option>
-          <% ['ethereum','bsc','polygon','avalanche','optimism','fantom','arbitrum','sonic'].forEach(c => { %>
-            <option value="<%= c %>" <%= wallet && wallet.chain === c ? 'selected' : '' %>><%= c %></option>
+      <!-- Cadenas (multi-select con checkboxes) -->
+      <div class="mb-8">
+        <div class="flex items-center justify-between mb-3">
+          <label class="text-sm font-semibold text-[#101114]">Cadenas</label>
+          <button type="button" onclick="toggleAll()"
+            class="text-xs text-primary hover:underline font-medium" id="toggle-btn">Seleccionar todas</button>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <% CHAINS.forEach(function(c) {
+            const meta = CHAIN_META[c];
+            const checked = wallet && wallet.chains && wallet.chains.includes(c);
+          %>
+            <label class="flex items-center gap-3 p-3 border border-[#dedee5] rounded-xl cursor-pointer hover:border-primary transition has-[:checked]:border-primary has-[:checked]:bg-[rgba(113,50,245,0.04)]">
+              <input type="checkbox" name="chains" value="<%= c %>" <%= checked ? 'checked' : '' %>
+                class="w-4 h-4 accent-primary">
+              <img src="<%= meta.logo %>" alt="<%= meta.name %>" class="w-5 h-5 rounded-full object-cover">
+              <span class="text-sm font-medium text-[#101114]"><%= meta.name %></span>
+            </label>
           <% }) %>
-        </select>
+        </div>
       </div>
 
-      <div style="display: flex; gap: 12px;">
+      <div class="flex gap-3">
         <button type="submit"
-          style="flex: 1; background: #7132f5; color: #ffffff; font-size: 14px; font-weight: 600; padding: 14px 24px; border: none; border-radius: 12px; cursor: pointer; transition: background 0.2s;"
-          onmouseover="this.style.background='#5f25d9'"
-          onmouseout="this.style.background='#7132f5'">
+          class="flex-1 bg-primary hover:bg-[#5f25d9] text-white text-sm font-semibold py-3 px-6 rounded-xl transition">
           <%= wallet ? 'Guardar Cambios' : 'Crear Billetera' %>
         </button>
         <a href="/wallets"
-          style="flex: 1; background: #ffffff; color: #101114; font-size: 14px; font-weight: 600; padding: 14px 24px; border: 1px solid #dedee5; border-radius: 12px; text-decoration: none; text-align: center; transition: all 0.2s;"
-          onmouseover="this.style.borderColor='#7132f5'; this.style.color='#7132f5'"
-          onmouseout="this.style.borderColor='#dedee5'; this.style.color='#101114'">
+          class="flex-1 border border-[#dedee5] hover:border-primary text-[#101114] hover:text-primary text-sm font-semibold py-3 px-6 rounded-xl text-center transition">
           Cancelar
         </a>
       </div>
     </form>
   </main>
+
+  <script>
+    function toggleAll() {
+      const boxes = document.querySelectorAll('input[name="chains"]');
+      const allChecked = Array.from(boxes).every(b => b.checked);
+      boxes.forEach(b => b.checked = !allChecked);
+      document.getElementById('toggle-btn').textContent = allChecked ? 'Seleccionar todas' : 'Deseleccionar todas';
+    }
+  </script>
 </body>
 </html>

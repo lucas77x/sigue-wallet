@@ -113,8 +113,8 @@ describe('getPortfolioBalances', () => {
     axios.get.mockResolvedValue({ data: { data: [] } });
 
     const wallets = [
-      { id: 1, address: '0x111', chain: 'ethereum' },
-      { id: 2, address: '0x222', chain: 'polygon' },
+      { id: 1, address: '0x111', chains: ['ethereum'] },
+      { id: 2, address: '0x222', chains: ['polygon'] },
     ];
 
     const result = await getPortfolioBalances(wallets);
@@ -123,7 +123,7 @@ describe('getPortfolioBalances', () => {
     expect(result[1]).toMatchObject({ id: 2, balances: [] });
   });
 
-  it('fetches all wallets in parallel (Promise.all)', async () => {
+  it('fetches all chains across all wallets in parallel', async () => {
     let callCount = 0;
     axios.get.mockImplementation(() => {
       callCount++;
@@ -131,12 +131,24 @@ describe('getPortfolioBalances', () => {
     });
 
     const wallets = [
-      { id: 1, address: '0xaaa', chain: 'ethereum' },
-      { id: 2, address: '0xbbb', chain: 'bsc' },
-      { id: 3, address: '0xccc', chain: 'polygon' },
+      { id: 1, address: '0xaaa', chains: ['ethereum'] },
+      { id: 2, address: '0xbbb', chains: ['bsc'] },
+      { id: 3, address: '0xccc', chains: ['polygon', 'arbitrum'] },
     ];
 
     await getPortfolioBalances(wallets);
-    expect(callCount).toBe(3);
+    expect(callCount).toBe(4); // 1 + 1 + 2
+  });
+
+  it('flattens balances from multiple chains into a single array', async () => {
+    axios.get
+      .mockResolvedValueOnce({ data: { data: [{ symbol: 'ETH', balance: '1000000000000000000', decimals: 18 }] } })
+      .mockResolvedValueOnce({ data: { data: [{ symbol: 'MATIC', balance: '5000000000000000000', decimals: 18 }] } });
+
+    const wallets = [{ id: 1, address: '0xmulti', chains: ['ethereum', 'polygon'] }];
+    const [result] = await getPortfolioBalances(wallets);
+    expect(result.balances).toHaveLength(2);
+    expect(result.balances[0].symbol).toBe('ETH');
+    expect(result.balances[1].symbol).toBe('MATIC');
   });
 });
