@@ -44,16 +44,21 @@ export async function getWalletBalances(address, chain) {
 
     if (!data?.data || !Array.isArray(data.data)) return [];
 
-    return data.data.map((token) => ({
-      chain,
-      symbol: token.symbol || 'UNKNOWN',
-      name: token.name || '',
-      balance: formatBalance(token.balance, token.decimals),
-      decimals: token.decimals,
-      contract: token.contract || null,
-      priceUsd: token.price_usd || 0,
-      valueUsd: token.value_usd || 0,
-    }));
+    return data.data
+      .map((token) => ({
+        chain,
+        symbol: token.symbol || 'UNKNOWN',
+        name: token.name || '',
+        balance: formatBalance(token.balance, token.decimals),
+        decimals: token.decimals,
+        contract: token.contract || null,
+        priceUsd: token.price_usd || 0,
+        valueUsd: token.value_usd || 0,
+      }))
+      // Filter out dust/spam: zero balance after formatting AND zero USD value
+      .filter((t) => parseFloat(t.balance) > 0 || t.valueUsd > 0)
+      // Sort by USD value descending
+      .sort((a, b) => b.valueUsd - a.valueUsd);
   } catch (err) {
     if (err.response?.status === 404) {
       return []; // address has no tokens on this chain

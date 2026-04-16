@@ -12,10 +12,7 @@
         extend: {
           colors: {
             primary: '#7132f5',
-            kraken: {
-              purple: '#7132f5', text: '#101114', muted: '#9497a9',
-              border: '#dedee5', green: '#149e61',
-            }
+            kraken: { purple: '#7132f5', text: '#101114', muted: '#9497a9', border: '#dedee5', green: '#149e61' }
           },
           fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
           boxShadow: { card: 'rgba(0,0,0,0.03) 0px 4px 24px' },
@@ -27,6 +24,10 @@
   <style>
     body { font-family: 'Inter', system-ui, sans-serif; }
     .font-mono { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; }
+    details summary::-webkit-details-marker { display: none; }
+    details summary { list-style: none; }
+    details[open] .chevron { transform: rotate(90deg); }
+    .chevron { transition: transform 0.15s ease; }
   </style>
 </head>
 <body class="bg-white text-kraken-text min-h-screen">
@@ -53,7 +54,7 @@
     </div>
   </nav>
 
-  <!-- Main Content -->
+  <!-- Main -->
   <main class="px-6 py-8 max-w-6xl mx-auto">
     <div class="flex items-center justify-between mb-8">
       <h1 class="text-2xl font-bold text-kraken-text">Mi Portafolio</h1>
@@ -69,36 +70,40 @@
             <path d="M8 12h16M8 16h12M8 20h8" stroke="#7132f5" stroke-width="2" stroke-linecap="round"/>
           </svg>
         </div>
-        <h2 class="text-xl font-semibold text-kraken-text mb-2">No tenés billeteras cargadas</h2>
+        <h2 class="text-xl font-semibold mb-2">No tenés billeteras cargadas</h2>
         <p class="text-kraken-muted mb-6">Agregá tu primera billetera para comenzar a trackear tu portafolio crypto.</p>
         <a href="/wallets/new" class="inline-block bg-primary hover:bg-opacity-90 text-white px-6 py-3 rounded-btn font-medium transition shadow-sm">
           Agregar tu primera billetera
         </a>
       </div>
     <% } else { %>
-      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 items-start">
         <% wallets.forEach(function(wallet) { %>
           <div class="bg-white rounded-card border border-kraken-border shadow-card overflow-hidden">
-            <!-- Card header -->
+            <!-- Header -->
             <div class="px-5 pt-5 pb-4 border-b border-kraken-border">
-              <h3 class="font-bold text-base text-kraken-text truncate"><%= wallet.alias %></h3>
-              <p class="font-mono text-xs text-kraken-muted mt-0.5">
-                <%= wallet.address.slice(0,6) %>...<%= wallet.address.slice(-4) %>
-              </p>
+              <div class="flex items-start justify-between">
+                <div class="min-w-0">
+                  <h3 class="font-bold text-base text-kraken-text truncate"><%= wallet.alias %></h3>
+                  <p class="font-mono text-xs text-kraken-muted mt-0.5">
+                    <%= wallet.address.slice(0,6) %>...<%= wallet.address.slice(-4) %>
+                  </p>
+                </div>
+                <span id="total-<%= wallet.id %>" class="text-xs text-kraken-muted ml-3 mt-0.5 shrink-0"></span>
+              </div>
             </div>
-            <!-- Chain rows -->
-            <div class="divide-y divide-kraken-border">
+            <!-- Chain rows (populated by JS) -->
+            <div id="chains-<%= wallet.id %>" class="divide-y divide-kraken-border">
               <% wallet.chains.forEach(function(chain) { %>
-                <div id="chain-<%= wallet.id %>-<%= chain %>"
-                  class="px-5 py-3 flex items-center gap-3 min-h-[44px]">
+                <div class="px-5 py-3 flex items-center gap-3">
                   <img src="/static/images/chains/<%= chain %>.png"
                     onerror="this.src='/static/images/chains/<%= chain %>.svg'; this.onerror=null"
                     alt="<%= chain %>" class="w-5 h-5 rounded-full object-cover flex-shrink-0">
-                  <span class="text-sm font-medium text-kraken-text flex-1">
+                  <span class="text-sm font-medium text-kraken-text flex-1 capitalize">
                     <%= chain === 'bsc' ? 'BNB Chain' : chain.charAt(0).toUpperCase() + chain.slice(1) %>
                   </span>
-                  <span class="chain-status text-xs text-kraken-muted">
-                    <span class="inline-block w-1.5 h-1.5 bg-kraken-muted rounded-full animate-pulse"></span>
+                  <span class="inline-flex items-center gap-1 text-xs text-kraken-muted">
+                    <span class="w-1.5 h-1.5 rounded-full bg-kraken-muted animate-pulse inline-block"></span>
                   </span>
                 </div>
               <% }) %>
@@ -116,42 +121,115 @@
       return el.innerHTML;
     }
 
+    function fmtUsd(v) {
+      if (!v || v < 0.001) return '';
+      if (v >= 1000) return '$' + v.toLocaleString('en-US', { maximumFractionDigits: 0 });
+      return '$' + v.toFixed(2);
+    }
+
+    function fmtBalance(b) {
+      const n = parseFloat(b);
+      if (isNaN(n)) return '0';
+      if (n === 0) return '0';
+      if (n >= 1000) return n.toLocaleString('en-US', { maximumFractionDigits: 2 });
+      if (n >= 1)    return n.toFixed(4);
+      return n.toPrecision(4);
+    }
+
+    const CHAIN_NAMES = {
+      ethereum: 'Ethereum', bsc: 'BNB Chain', polygon: 'Polygon',
+      avalanche: 'Avalanche', optimism: 'Optimism', arbitrum: 'Arbitrum',
+      fantom: 'Fantom', sonic: 'Sonic'
+    };
+
+    function logoSrc(chain) {
+      return chain === 'sonic'
+        ? `/static/images/chains/${chain}.svg`
+        : `/static/images/chains/${chain}.png`;
+    }
+
+    function buildChainRow(chain, tokens) {
+      const name = CHAIN_NAMES[chain] || chain;
+      const logo = logoSrc(chain);
+      const logoFallback = chain !== 'sonic'
+        ? `onerror="this.src='/static/images/chains/${chain}.svg'; this.onerror=null"`
+        : '';
+
+      if (tokens.length === 0) {
+        return `
+          <div class="px-5 py-3 flex items-center gap-3">
+            <img src="${logo}" ${logoFallback} alt="${name}" class="w-5 h-5 rounded-full object-cover flex-shrink-0">
+            <span class="text-sm font-medium text-kraken-text flex-1">${name}</span>
+            <span class="text-xs text-kraken-muted">Sin tokens</span>
+          </div>`;
+      }
+
+      const chainTotal = tokens.reduce((s, t) => s + (t.valueUsd || 0), 0);
+      const totalLabel = chainTotal > 0.001 ? fmtUsd(chainTotal) : `${tokens.length} token${tokens.length > 1 ? 's' : ''}`;
+
+      const tokenRows = tokens.map(t => `
+        <div class="flex items-center gap-2 py-1.5 text-xs">
+          <span class="w-14 font-semibold text-kraken-text truncate" title="${esc(t.name)}">${esc(t.symbol)}</span>
+          <span class="flex-1 text-right font-mono text-[#101114]">${esc(fmtBalance(t.balance))}</span>
+          <span class="w-16 text-right font-semibold ${t.valueUsd > 0 ? 'text-kraken-green' : 'text-kraken-muted'}">${t.valueUsd > 0.001 ? fmtUsd(t.valueUsd) : ''}</span>
+        </div>`).join('');
+
+      return `
+        <details class="group">
+          <summary class="px-5 py-3 flex items-center gap-3 cursor-pointer select-none hover:bg-[rgba(0,0,0,0.01)] transition">
+            <img src="${logo}" ${logoFallback} alt="${name}" class="w-5 h-5 rounded-full object-cover flex-shrink-0">
+            <span class="text-sm font-medium text-kraken-text flex-1">${name}</span>
+            <span class="text-xs font-semibold text-kraken-text mr-1.5">${totalLabel}</span>
+            <svg class="chevron w-3.5 h-3.5 text-kraken-muted flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+            </svg>
+          </summary>
+          <div class="px-5 pb-3 pt-0.5 bg-[#fafafa] border-t border-kraken-border">
+            <div class="flex items-center gap-2 pb-1 mb-1 border-b border-kraken-border">
+              <span class="w-14 text-[10px] font-semibold uppercase tracking-wide text-kraken-muted">Token</span>
+              <span class="flex-1 text-right text-[10px] font-semibold uppercase tracking-wide text-kraken-muted">Saldo</span>
+              <span class="w-16 text-right text-[10px] font-semibold uppercase tracking-wide text-kraken-muted">USD</span>
+            </div>
+            ${tokenRows}
+          </div>
+        </details>`;
+    }
+
     async function fetchWalletBalances(walletId, chains) {
+      const container = document.getElementById(`chains-${walletId}`);
+      const totalEl = document.getElementById(`total-${walletId}`);
+
       try {
         const res = await fetch(`/api/portfolio/wallet/${walletId}`);
         const data = await res.json();
         const balances = data.balances || [];
 
-        // Group by chain
+        // Group by chain, already filtered on server (balance > 0)
         const byChain = {};
         balances.forEach(b => {
           if (!byChain[b.chain]) byChain[b.chain] = [];
           byChain[b.chain].push(b);
         });
 
-        chains.forEach(chain => {
-          const row = document.getElementById(`chain-${walletId}-${chain}`);
-          if (!row) return;
-          const cell = row.querySelector('.chain-status');
-          const tokens = byChain[chain] || [];
+        // Render chain rows
+        container.innerHTML = chains.map(c => buildChainRow(c, byChain[c] || [])).join(
+          '<div class="border-t border-kraken-border"></div>'
+        );
 
-          if (tokens.length === 0) {
-            cell.innerHTML = '<span class="text-kraken-muted">Sin tokens</span>';
-            return;
-          }
-
-          const top = tokens[0];
-          const more = tokens.length > 1
-            ? ` <span class="text-[#9497a9]">+${tokens.length - 1}</span>`
-            : '';
-          cell.innerHTML = `<span class="font-semibold text-kraken-text">${esc(top.balance)} ${esc(top.symbol)}</span>${more}`;
-        });
+        // Update wallet total
+        const walletTotal = balances.reduce((s, t) => s + (t.valueUsd || 0), 0);
+        if (walletTotal > 0.001) {
+          totalEl.textContent = fmtUsd(walletTotal);
+          totalEl.className = 'text-sm font-bold text-kraken-green ml-3 mt-0.5 shrink-0';
+        }
       } catch (err) {
         console.error(`Error wallet ${walletId}:`, err);
-        chains.forEach(chain => {
-          const row = document.getElementById(`chain-${walletId}-${chain}`);
-          if (row) row.querySelector('.chain-status').innerHTML = '<span class="text-red-400">Error</span>';
-        });
+        container.innerHTML = chains.map(c => `
+          <div class="px-5 py-3 flex items-center gap-3">
+            <img src="${logoSrc(c)}" alt="${c}" class="w-5 h-5 rounded-full object-cover flex-shrink-0">
+            <span class="text-sm font-medium text-kraken-text flex-1 capitalize">${CHAIN_NAMES[c] || c}</span>
+            <span class="text-xs text-red-400">Error</span>
+          </div>`).join('');
       }
     }
 
