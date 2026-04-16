@@ -6,17 +6,17 @@ export default async function walletsRoutes(fastify) {
 
   fastify.get('/wallets', async (request, reply) => {
     const wallets = await getWallets(request.session.userId);
-    return reply.render('wallets/index.ejs', { wallets });
+    return reply.view('wallets/index.ejs', { wallets });
   });
 
   fastify.get('/wallets/new', async (request, reply) => {
-    return reply.render('wallets/form.ejs', { wallet: null, error: null });
+    return reply.view('wallets/form.ejs', { wallet: null, error: null });
   });
 
   fastify.get('/wallets/:id/edit', async (request, reply) => {
     const wallet = await getWalletById(request.params.id, request.session.userId);
     if (!wallet) return reply.redirect('/wallets');
-    return reply.render('wallets/form.ejs', { wallet, error: null });
+    return reply.view('wallets/form.ejs', { wallet, error: null });
   });
 
   fastify.post('/wallets', async (request, reply) => {
@@ -25,7 +25,7 @@ export default async function walletsRoutes(fastify) {
       await createWallet({ userId: request.session.userId, alias, address, chain });
       return reply.redirect('/wallets');
     } catch (err) {
-      return reply.render('wallets/form.ejs', { wallet: null, error: err.message });
+      return reply.view('wallets/form.ejs', { wallet: null, error: err.message });
     }
   });
 
@@ -35,7 +35,7 @@ export default async function walletsRoutes(fastify) {
       await updateWallet(request.params.id, request.session.userId, { alias, address, chain });
       return reply.redirect('/wallets');
     } catch (err) {
-      return reply.render('wallets/form.ejs', { wallet: null, error: err.message });
+      return reply.view('wallets/form.ejs', { wallet: null, error: err.message });
     }
   });
 
