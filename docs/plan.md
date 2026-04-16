@@ -3,24 +3,46 @@
 ## Meta
 
 - **Usuario:** Lucas (developer, GitHub: lucas77x)
-- **Fecha:** 2026-04-15
+- **Fecha inicio:** 2026-04-15
 - **Stack:** Fastify 5 + Knex + better-sqlite3 + EJS + Tailwind CDN
 - **Repo:** `https://github.com/lucas77x/sigue-wallet`
 
 ---
 
-## Alcance
+## Estado Actual
 
-### Etapa 1 — Balances (presente)
+### Etapa 1 — Balances
 
-- Login con password encriptada (bcrypt + sessions)
-- Wallet ABM (CRUD): crear, editar, eliminar billeteras
-- Balance de tokens ERC-20 por wallet y chain
-- Balance total USD
-- Snapshot semanal (domingo 9am UTC-3)
-- Iconos de tokens desde `logo_url` del API
+| Feature | Estado | Notas |
+|---------|--------|-------|
+| Login con password encriptada (bcrypt + sessions) | ✅ Completo | |
+| Wallet ABM (crear, editar, eliminar) | ✅ Completo | |
+| Balance de tokens ERC-20 por wallet/chain | ✅ Completo | Via The Graph Token API real |
+| Migrations idempotentes (Knex) | ✅ Completo | Reemplazó runner SQL manual |
+| Test suite (Vitest) | ✅ Completo | ~62 tests, pool: forks |
+| ESLint + Prettier | ✅ Completo | ESLint 9 flat config |
+| Iconos de tokens desde `logo_url` | ⬜ Pendiente | |
+| Balance total en USD | ⬜ Pendiente | |
+| Snapshot semanal (domingo 9am UTC-3) | ⬜ Pendiente | |
 
-### Etapa 2 — DeFi Positions (futuro)
+### Bugs Críticos Resueltos (2026-04-15)
+
+| # | Bug | Branch |
+|---|-----|--------|
+| 1 | `loadUser` no existía — crash al importar | `fix/auth-middleware` |
+| 2 | `setViewEngine()` no existe en Fastify 5 — usar `@fastify/view` + `reply.view()` | `fix/server-startup` |
+| 3 | `@fastify/static` y `public/` no existían | `fix/server-startup` |
+| 4 | `@fastify/formbody` no registrado — POSTs con `body = null` | `fix/server-startup` |
+| 5 | API routes sin prefijo — conflictos de rutas | `fix/server-startup` |
+| 6 | `wallets` sin columna `user_id` — queries vacías | `fix/database-schema` |
+| 7 | `thegraph.js` era un stub con endpoint incorrecto | `fix/thegraph-service` |
+| 8 | `SESSION_SECRET` undefined — sessions inseguras | `fix/server-startup` |
+| 9 | `.env.example` incompleto (faltaban SESSION_SECRET, PORT, HOST, ADMIN_PASSWORD) | `fix/env-and-config` |
+| 10 | Migration runner no idempotente — fallaba en ALTER TABLE | `fix/database-schema` |
+
+---
+
+## Etapa 2 — DeFi Positions (futuro)
 
 - Aave, Uniswap, Curve, Venus, PancakeSwap, Beefy, QuickSwap, Balancer
 - Health factor alerts
@@ -31,41 +53,65 @@
 ## Data Source
 
 **The Graph Token API** (gratis, 100k queries/mes)
-- Endpoint: `https://gateway.thegraph.com`
+- Endpoint: `https://token-api.thegraph.com/v1/evm/balances`
+- Auth: `Authorization: Bearer {API_KEY}`
+- Params: `?network_id={networkId}&address={address}`
 - Requiere `THEGRAPH_API_KEY` en `.env`
-- Coverage: ETH, BSC, Polygon, Avalanche, Optimism, Fantom, Arbitrum
-- Sonic: verificar soporte; RPC fallback si no
+
+### Coverage
+
+| Chain | network_id | Soportado |
+|-------|-----------|-----------|
+| ethereum | `mainnet` | ✅ |
+| bsc | `bsc` | ✅ |
+| polygon | `matic` | ✅ |
+| avalanche | `avalanche` | ✅ |
+| optimism | `optimism` | ✅ |
+| arbitrum | `arbitrum-one` | ✅ |
+| fantom | — | ❌ No soportado |
+| sonic | — | ❌ No soportado |
 
 ---
 
 ## Arquitectura
 
 ```
-src/
-├── server.js              # Fastify entry point
-├── models/
-│   ├── db.js              # Knex singleton
-│   ├── migrations/         # SQL migrations
-│   ├── user.js             # User queries
-│   └── wallet.js           # Wallet CRUD
-├── services/
-│   ├── thegraph.js         # The Graph API client
-│   └── portfolio.js        # Balance aggregation
-├── routes/
-│   ├── auth.js             # Login/logout
-│   ├── dashboard.js        # Dashboard page
-│   ├── wallets.js          # Wallet ABM pages
-│   └── api/
-│       ├── wallets.js      # Wallet REST API
-│       └── portfolio.js    # Portfolio REST API
-├── middleware/
-│   └── auth.js             # Session guard
-└── views/
-    ├── login.ejs
-    ├── dashboard.ejs
-    └── wallets/
-        ├── index.ejs
-        └── form.ejs
+sigue-wallet/
+├── public/                     # Static assets
+├── src/
+│   ├── server.js               # Fastify entry point
+│   ├── middleware/
+│   │   └── auth.js             # loadUser + requireAuth
+│   ├── models/
+│   │   ├── db.js               # Knex singleton + runMigrations()
+│   │   ├── migrate.js          # Script: pnpm migrate
+│   │   ├── migrations/         # JS migrations (up/down)
+│   │   ├── user.js             # User queries
+│   │   └── wallet.js           # Wallet CRUD
+│   ├── routes/
+│   │   ├── auth.js             # Login/logout
+│   │   ├── dashboard.js        # Dashboard page
+│   │   ├── wallets.js          # Wallet ABM pages
+│   │   └── api/
+│   │       ├── wallets.js      # GET /api/wallets
+│   │       └── portfolio.js    # GET /api/portfolio
+│   ├── services/
+│   │   ├── thegraph.js         # The Graph Token API client
+│   │   └── portfolio.js        # Balance aggregation
+│   └── views/
+│       ├── login.ejs
+│       ├── dashboard.ejs
+│       └── wallets.ejs
+├── tests/
+│   ├── helpers/
+│   │   └── create-test-db.js   # In-memory SQLite helper
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   └── services/
+├── knexfile.js
+├── vitest.config.js
+└── .env.example
 ```
 
 ---
@@ -84,9 +130,9 @@ src/
 | Campo | Tipo |
 |-------|------|
 | id | INTEGER PK |
-| user_id | INTEGER FK |
+| user_id | INTEGER FK → users.id |
 | alias | TEXT |
-| address | TEXT |
+| address | TEXT (lowercase) |
 | chain | TEXT |
 | created_at | TEXT |
 | updated_at | TEXT |
@@ -95,10 +141,33 @@ src/
 | Campo | Tipo |
 |-------|------|
 | id | INTEGER PK |
-| user_id | INTEGER FK |
-| wallet_id | INTEGER FK |
+| user_id | INTEGER FK → users.id |
+| wallet_id | INTEGER FK → wallets.id |
 | data | TEXT (JSON) |
 | created_at | TEXT |
+
+---
+
+## Testing Strategy
+
+- **Framework:** Vitest con `pool: 'forks'` (requerido para native addons como better-sqlite3 y bcrypt)
+- **Models:** In-memory SQLite real (`:memory:`) — sin mocks de DB
+- **Services:** `vi.mock('axios', () => ({ default: { get: vi.fn(), post: vi.fn() } }))` — factory explícita para ESM
+- **Middleware:** Mock de `findUserById`
+- **Routes:** `fastify.inject()` con instancia mínima
+
+Estructura de tests espeja `src/`:
+```
+tests/
+├── helpers/create-test-db.js
+├── middleware/auth.test.js
+├── models/user.test.js
+├── models/wallet.test.js
+├── routes/auth.test.js
+├── routes/api.wallets.test.js
+├── services/portfolio.test.js
+└── services/thegraph.test.js
+```
 
 ---
 
@@ -116,9 +185,18 @@ src/
 | POST | `/wallets` | Crear |
 | POST | `/wallets/:id` | Actualizar |
 | POST | `/wallets/:id/delete` | Eliminar |
-| GET | `/api/portfolio` | JSON portafolio |
-| GET | `/api/portfolio/wallet/:id` | JSON por billetera |
 | GET | `/api/wallets` | JSON billeteras |
+| GET | `/api/wallets/:id` | JSON billetera por ID |
+| GET | `/api/portfolio/wallet/:id` | JSON balances por billetera |
+
+---
+
+## Seguridad
+
+- `axios` fijado en `"1.14.0"` (sin `^`) — `1.14.1` comprometida en supply chain attack (Sapphire Sleet, marzo 2026)
+- `SESSION_SECRET` mínimo 32 chars — server hace `process.exit(1)` si no está
+- `loadUser` nunca expone `password_hash` en `request.user`
+- XSS: helper `esc()` en dashboard para datos de API en `innerHTML`
 
 ---
 
@@ -132,20 +210,19 @@ src/
 
 ---
 
-## Cron Jobs
+## Cron Jobs (Pendientes)
 
 | Job | Schedule | Descripción |
 |-----|----------|-------------|
 | Snapshot semanal | Domingo 9am UTC-3 | Guardar estado del portfolio |
-| NPM security | Daily 9am UTC-3 | Verificar vulnerabilidades |
 
 ---
 
 ## Credenciales
 
-- **Admin:** `admin` / `sigue2026` (cambiar en primer login)
+- **Admin:** `admin` / `sigue2026` (cambiar via `ADMIN_PASSWORD` en `.env`)
 - **GitHub:** `lucas77x` (HTTPS con `gh auth git-credential`)
-- **The Graph:** requiere API key en `THEGRAPH_API_KEY`
+- **The Graph:** `THEGRAPH_API_KEY` en `.env`
 
 ---
 
@@ -155,13 +232,8 @@ src/
 main        ← producción (protegida)
 develop     ← integración
 feature/*   ← desde develop, PR a develop
+fix/*       ← desde develop, PR a develop
 ```
-
-Para cada feature:
-1. `git checkout -b feature/nombre` desde `develop`
-2. Trabajo
-3. PR a `develop`
-4. Merge a `main` cuando esté en producción
 
 ---
 
@@ -170,4 +242,4 @@ Para cada feature:
 1. ¿The Graph subgraphs para DeFi o usar otra fuente?
 2. ¿Alerts por Telegram, email o solo dashboard?
 3. ¿Gráfico de evolución del portfolio?
-4. ¿Otras chains además de las 7 ya cubiertas?
+4. ¿Soporte para Fantom/Sonic cuando Token API los agregue?
