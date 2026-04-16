@@ -4,105 +4,96 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Billeteras — Sigue Wallet</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <script src="/static/tailwind.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
       theme: {
         extend: {
-          colors: {
-            primary: '#7132f5',
-            text: '#101114',
-            muted: '#9497a9',
-            border: '#dedee5',
-            green: '#149e61',
-          },
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-          },
-          boxShadow: {
-            card: 'rgba(0,0,0,0.03) 0px 4px 24px',
-          },
-          borderRadius: {
-            btn: '12px',
-            card: '16px',
-          }
+          colors: { primary: '#7132f5' },
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
         }
       }
     }
   </script>
 </head>
-<body class="bg-white text-[#101114] font-sans min-h-screen">
-  <!-- Navbar Kraken -->
+<body class="bg-white text-[#101114] min-h-screen" style="font-family: 'Inter', sans-serif;">
+
   <nav class="bg-white border-b border-[#dedee5] px-6 py-4">
-    <div class="flex items-center justify-between">
-      <a href="/dashboard" class="text-xl font-bold text-[#7132f5]">Sigue Wallet</a>
+    <div class="flex items-center justify-between max-w-6xl mx-auto">
+      <a href="/dashboard" class="flex items-center gap-2">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#7132f5"/><path d="M10 14h12M10 18h8" stroke="white" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="18" r="3" stroke="white" stroke-width="2"/></svg>
+        <span class="text-xl font-bold text-[#101114]">Sigue Wallet</span>
+      </a>
       <div class="flex items-center gap-6">
-        <a href="/dashboard" class="text-[#9497a9] hover:text-[#101114] transition text-sm font-medium">Dashboard</a>
-        <a href="/wallets" class="text-[#101114] hover:text-[#7132f5] transition text-sm font-medium">Billeteras</a>
-        <a href="/logout" class="text-[#9497a9] hover:text-[#101114] text-sm transition">Salir</a>
+        <a href="/dashboard" class="text-[#9497a9] hover:text-primary text-sm font-medium transition">Dashboard</a>
+        <a href="/wallets" class="text-[#101114] font-medium text-sm transition">Billeteras</a>
+        <a href="/logout" class="text-red-500 hover:text-red-600 text-sm font-medium transition">Salir</a>
       </div>
     </div>
   </nav>
 
   <main class="px-6 py-8 max-w-6xl mx-auto">
-    <!-- Header -->
     <div class="flex items-center justify-between mb-8">
       <div>
         <h1 class="text-2xl font-bold text-[#101114]">Billeteras</h1>
-        <p class="text-[#9497a9] text-sm mt-1">Gestiona tus billeteras conectadas</p>
+        <p class="text-[#9497a9] text-sm mt-1">Gestioná tus billeteras conectadas</p>
       </div>
-      <a href="/wallets/new" class="bg-[#7132f5] hover:bg-[#6328e0] text-white px-5 py-2.5 rounded-[12px] text-sm font-medium transition inline-flex items-center gap-2">
+      <a href="/wallets/new"
+        class="bg-primary hover:bg-[#5f25d9] text-white px-5 py-2.5 rounded-xl text-sm font-medium transition inline-flex items-center gap-2">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
         </svg>
         Nueva Billetera
       </a>
     </div>
 
     <% if (wallets.length === 0) { %>
-      <!-- Estado vacío -->
-      <div class="bg-white rounded-[16px] border border-[#dedee5] shadow-[rgba(0,0,0,0.03)_0px_4px_24px] p-12 text-center">
+      <div class="bg-white rounded-2xl border border-[#dedee5] shadow-[rgba(0,0,0,0.03)_0px_4px_24px] p-12 text-center">
         <div class="w-16 h-16 bg-[rgba(113,50,245,0.1)] rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-[#7132f5]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" />
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3"/>
           </svg>
         </div>
-        <h2 class="text-lg font-semibold text-[#101114] mb-2">No hay billeteras cargadas</h2>
-        <p class="text-[#9497a9] text-sm mb-6">Comienza agregando tu primera billetera para hacer seguimiento de tu portafolio</p>
-        <a href="/wallets/new" class="inline-flex items-center gap-2 bg-[#7132f5] hover:bg-[#6328e0] text-white px-6 py-3 rounded-[12px] text-sm font-medium transition">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-          </svg>
+        <h2 class="text-lg font-semibold mb-2">No hay billeteras cargadas</h2>
+        <p class="text-[#9497a9] text-sm mb-6">Agregá tu primera billetera para trackear tu portafolio</p>
+        <a href="/wallets/new" class="inline-flex items-center gap-2 bg-primary hover:bg-[#5f25d9] text-white px-6 py-3 rounded-xl text-sm font-medium transition">
           Agregar primera billetera
         </a>
       </div>
     <% } else { %>
-      <!-- Tabla de wallets -->
-      <div class="bg-white rounded-[16px] border border-[#dedee5] shadow-[rgba(0,0,0,0.03)_0px_4px_24px] overflow-hidden">
+      <div class="bg-white rounded-2xl border border-[#dedee5] shadow-[rgba(0,0,0,0.03)_0px_4px_24px] overflow-hidden">
         <table class="w-full">
           <thead>
             <tr class="bg-[#f8f8fa] border-b border-[#dedee5]">
               <th class="px-6 py-4 text-left text-xs font-semibold text-[#9497a9] uppercase tracking-wider">Alias</th>
               <th class="px-6 py-4 text-left text-xs font-semibold text-[#9497a9] uppercase tracking-wider">Dirección</th>
-              <th class="px-6 py-4 text-left text-xs font-semibold text-[#9497a9] uppercase tracking-wider">Cadena</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-[#9497a9] uppercase tracking-wider">Cadenas</th>
               <th class="px-6 py-4 text-right text-xs font-semibold text-[#9497a9] uppercase tracking-wider">Acciones</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-[#dedee5]">
-            <% wallets.forEach(w => { %>
-              <tr class="hover:bg-[rgba(0,0,0,0.02)] transition">
+            <% wallets.forEach(function(w) { %>
+              <tr class="hover:bg-[rgba(0,0,0,0.01)] transition">
                 <td class="px-6 py-4 font-medium text-[#101114]"><%= w.alias %></td>
-                <td class="px-6 py-4 text-[#9497a9] text-sm font-mono"><%= w.address %></td>
+                <td class="px-6 py-4 text-[#9497a9] text-xs font-mono"><%= w.address %></td>
                 <td class="px-6 py-4">
-                  <span class="text-xs bg-[rgba(133,91,251,0.16)] text-[#7132f5] px-2.5 py-1 rounded-[6px] uppercase font-medium"><%= w.chain %></span>
+                  <div class="flex flex-wrap gap-1.5">
+                    <% w.chains.forEach(function(c) {
+                      const meta = CHAIN_META[c];
+                      if (!meta) return;
+                    %>
+                      <span class="inline-flex items-center gap-1 bg-[rgba(113,50,245,0.08)] text-primary text-xs font-medium px-2 py-1 rounded-lg">
+                        <img src="<%= meta.logo %>" alt="<%= meta.name %>" class="w-3.5 h-3.5 rounded-full object-cover">
+                        <%= meta.name %>
+                      </span>
+                    <% }) %>
+                  </div>
                 </td>
                 <td class="px-6 py-4 text-right">
-                  <a href="/wallets/<%= w.id %>/edit" class="text-[#7132f5] hover:text-[#6328e0] text-sm font-medium mr-5 transition">Editar</a>
+                  <a href="/wallets/<%= w.id %>/edit" class="text-primary hover:text-[#5f25d9] text-sm font-medium mr-5 transition">Editar</a>
                   <form method="POST" action="/wallets/<%= w.id %>/delete" class="inline">
-                    <button type="submit" class="text-[#686b82] hover:text-[#101114] text-sm font-medium transition"
+                    <button type="submit" class="text-[#9497a9] hover:text-red-500 text-sm font-medium transition"
                       onclick="return confirm('¿Eliminar esta billetera?')">Eliminar</button>
                   </form>
                 </td>

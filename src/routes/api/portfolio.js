@@ -15,7 +15,7 @@ export default async function apiPortfolio(fastify) {
   fastify.get('/wallet/:id', async (request, reply) => {
     const wallet = await getWalletById(request.params.id, request.session.userId);
     if (!wallet) return reply.status(404).send({ error: 'Not found' });
-    const portfolio = await getUserPortfolio([wallet]);
-    return { wallet, portfolio: portfolio[0] };
+    const [result] = await getUserPortfolio([wallet]);
+    return { wallet, balances: result.balances };
   });
 }

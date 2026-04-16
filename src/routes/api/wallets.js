@@ -16,13 +16,13 @@ export default async function apiWallets(fastify) {
   });
 
   fastify.post('/', async (request) => {
-    const { alias, address, chain } = request.body;
-    return createWallet({ userId: request.session.userId, alias, address, chain });
+    const { alias, address, chains } = request.body;
+    return createWallet({ userId: request.session.userId, alias, address, chains });
   });
 
   fastify.put('/:id', async (request) => {
-    const { alias, address, chain } = request.body;
-    return updateWallet(request.params.id, request.session.userId, { alias, address, chain });
+    const { alias, address, chains } = request.body;
+    return updateWallet(request.params.id, request.session.userId, { alias, address, chains });
   });
 
   fastify.delete('/:id', async (request) => {

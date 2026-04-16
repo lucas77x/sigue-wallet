@@ -63,6 +63,12 @@ export async function getWalletBalances(address, chain) {
 }
 
 export async function getPortfolioBalances(wallets) {
-  const results = await Promise.all(wallets.map((w) => getWalletBalances(w.address, w.chain)));
-  return wallets.map((w, i) => ({ ...w, balances: results[i] }));
+  const results = await Promise.all(
+    wallets.map(async (w) => {
+      const chains = Array.isArray(w.chains) ? w.chains : [w.chains].filter(Boolean);
+      const perChain = await Promise.all(chains.map((chain) => getWalletBalances(w.address, chain)));
+      return { ...w, balances: perChain.flat() };
+    }),
+  );
+  return results;
 }
