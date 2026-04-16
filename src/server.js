@@ -54,6 +54,7 @@ await fastify.register(fastifyStatic, {
 fastify.addHook('onRequest', loadUser);
 
 // ── Routes ───────────────────────────────────────
+fastify.get('/', (_request, reply) => reply.redirect('/dashboard'));
 await fastify.register(authRoutes);
 await fastify.register(dashboardRoutes);
 await fastify.register(walletsRoutes);
