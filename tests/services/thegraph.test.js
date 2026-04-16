@@ -63,6 +63,66 @@ describe('getWalletBalances', () => {
     expect(token.chain).toBe('ethereum');
   });
 
+  it('formats balance correctly using BigInt to avoid float64 precision loss', async () => {
+    axios.get.mockResolvedValueOnce({
+      data: {
+        data: [
+          // 2.5 USDC — 6 decimals, small value
+          { symbol: 'USDC', name: 'USD Coin', amount: '2500000', decimals: 6, value: 2.5 },
+        ],
+      },
+    });
+
+    const [token] = await getWalletBalances(MOCK_ADDRESS, 'ethereum');
+    expect(token.balance).toBe('2.5000');
+  });
+
+  it('filters out tokens with URL patterns in name (phishing airdrops)', async () => {
+    axios.get.mockResolvedValueOnce({
+      data: {
+        data: [
+          { symbol: 'VISIT', name: 'Visit https://scam.com to claim', amount: '250000000000000000000000', decimals: 18, value: 250000 },
+          { symbol: 'ETH', name: 'Ether', amount: '1000000000000000000', decimals: 18, value: 2000 },
+        ],
+      },
+    });
+
+    const result = await getWalletBalances(MOCK_ADDRESS, 'ethereum');
+    expect(result).toHaveLength(1);
+    expect(result[0].symbol).toBe('ETH');
+  });
+
+  it('filters out tokens with "claim" pattern in name', async () => {
+    axios.get.mockResolvedValueOnce({
+      data: {
+        data: [
+          { symbol: 'CLM', name: 'Claim your reward', amount: '3794998000000000000000000', decimals: 18, value: 3794998 },
+          { symbol: 'USDT', name: 'Tether USD', amount: '100000000', decimals: 6, value: 100 },
+        ],
+      },
+    });
+
+    const result = await getWalletBalances(MOCK_ADDRESS, 'polygon');
+    expect(result).toHaveLength(1);
+    expect(result[0].symbol).toBe('USDT');
+  });
+
+  it('filters out tokens with astronomically large balances (> 1 trillion)', async () => {
+    axios.get.mockResolvedValueOnce({
+      data: {
+        data: [
+          // 10^21 tokens (spam supply) — clearly spam regardless of name
+          { symbol: 'SPAM', name: 'Spam Token', amount: '1000000000000000000000000000000000000000', decimals: 18, value: 0 },
+          { symbol: 'WBTC', name: 'Wrapped Bitcoin', amount: '100000000', decimals: 8, value: 6000 },
+        ],
+      },
+    });
+
+    const result = await getWalletBalances(MOCK_ADDRESS, 'ethereum');
+    expect(result).toHaveLength(1);
+    expect(result[0].symbol).toBe('WBTC');
+  });
+
   it('returns empty array on 404 (address has no tokens)', async () => {
     const err = Object.assign(new Error('Not Found'), { response: { status: 404 } });
     axios.get.mockRejectedValueOnce(err);

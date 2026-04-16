@@ -19,10 +19,42 @@ const NETWORK_IDS = {
   sonic: null,  // Not supported by Token API
 };
 
+/**
+ * Converts a raw token amount (wei-like string) to a human-readable balance using BigInt
+ * to avoid float64 precision loss on large values (> 2^53).
+ */
 function formatBalance(rawBalance, decimals) {
   if (!rawBalance || decimals == null) return '0';
-  const value = Number(rawBalance) / Math.pow(10, decimals);
-  return value.toFixed(4);
+  try {
+    const raw = BigInt(String(rawBalance).split('.')[0]); // strip any accidental decimal
+    const dec = Math.max(0, Math.min(Number(decimals), 18)); // clamp 0–18
+    const divisor = 10n ** BigInt(dec);
+    const whole = raw / divisor;
+    const remainder = raw % divisor;
+    const wholeNum = Number(whole);
+    const fracNum = Number(remainder) / Number(divisor);
+    return (wholeNum + fracNum).toFixed(4);
+  } catch {
+    // Fallback for malformed values
+    const value = Number(rawBalance) / Math.pow(10, decimals);
+    return value.toFixed(4);
+  }
+}
+
+/**
+ * Spam/airdrop token detection heuristics.
+ * The Token API has no built-in spam filter, so we apply client-side rules.
+ * These catch the most common patterns: phishing URL airdrops, fake claim tokens,
+ * and overflowed balances from tokens with astronomical supply.
+ */
+const SPAM_NAME_PATTERN = /https?:\/\/|www\.|\.com|\.net|\.io|\.org|\bclaim\b|\bairdrop\b|\breward\b|\bvisit\b|\bprize\b/i;
+const MAX_REALISTIC_BALANCE = 1e12; // > 1 trillion formatted tokens = overflow or spam supply
+
+function isSpamToken(token) {
+  const nameSymbol = `${token.name ?? ''} ${token.symbol ?? ''}`;
+  if (SPAM_NAME_PATTERN.test(nameSymbol)) return true;
+  if (parseFloat(token.balance) > MAX_REALISTIC_BALANCE) return true;
+  return false;
 }
 
 export async function getWalletBalances(address, chain) {
@@ -55,8 +87,10 @@ export async function getWalletBalances(address, chain) {
         contract: token.contract || null,
         valueUsd: token.value || 0,
       }))
-      // Filter out dust/spam: zero formatted balance AND zero USD value
+      // Remove dust (zero balance AND zero USD value)
       .filter((t) => parseFloat(t.balance) > 0 || t.valueUsd > 0)
+      // Remove spam/airdrop tokens
+      .filter((t) => !isSpamToken(t))
       // Sort by USD value descending
       .sort((a, b) => b.valueUsd - a.valueUsd);
   } catch (err) {
